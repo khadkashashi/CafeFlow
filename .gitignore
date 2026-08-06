@@ -5,6 +5,11 @@ build/
 dist/
 wheels/
 *.egg-info
+db.sqlite3
+.env
+media/
+staticfiles/
+
 
 # Virtual environments
 .venv
