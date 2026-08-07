@@ -9,7 +9,7 @@ db.sqlite3
 .env
 media/
 staticfiles/
-
+food_items
 
 # Virtual environments
 .venv
