@@ -1,0 +1,47 @@
+{% extends "orders/base_pos.html" %}
+{% block title %}New Order — POS{% endblock %}
+
+{% block content %}
+<h3>New Order</h3>
+
+<form method="post">
+    {% csrf_token %}
+
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label class="form-label">Table</label>
+            {{ order_form.table }}
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Order Source</label>
+            {{ order_form.source }}
+        </div>
+    </div>
+
+    {{ formset.management_form }}
+
+    <table class="table table-bordered bg-white">
+        <thead>
+            <tr>
+                <th>Food Item</th>
+                <th>Quantity</th>
+                <th>Note</th>
+                <th>Remove</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for form in formset %}
+            <tr>
+                <td>{{ form.food }}</td>
+                <td>{{ form.quantity }}</td>
+                <td>{{ form.note }}</td>
+                <td>{% if form.instance.pk %}{{ form.DELETE }}{% endif %}</td>
+                {{ form.id }}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-success">Create Order</button>
+</form>
+{% endblock %}

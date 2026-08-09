@@ -1,0 +1,27 @@
+{% extends "orders/base_pos.html" %}
+{% block title %}Order #{{ order.pk }}{% endblock %}
+
+{% block content %}
+<h3>Order #{{ order.pk }} — {{ order.get_status_display }}</h3>
+<p><strong>Table:</strong> {{ order.table }}</p>
+
+<table class="table table-bordered bg-white">
+    <thead>
+        <tr><th>Item</th><th>Qty</th><th>Price</th><th>Line Total</th></tr>
+    </thead>
+    <tbody>
+        {% for item in order.items.all %}
+        <tr>
+            <td>{{ item.food.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>Rs.{{ item.price }}</td>
+            <td>Rs.{{ item.line_total }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<p><strong>Subtotal:</strong> Rs.{{ order.subtotal }}</p>
+<p><strong>Tax:</strong> Rs.{{ order.tax }}</p>
+<p><strong>Grand Total:</strong> Rs.{{ order.grand_total }}</p>
+{% endblock %}
