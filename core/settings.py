@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'orders',
     'kitchen',
     'billing',
+    'payments',
 ]
 
 MIDDLEWARE = [

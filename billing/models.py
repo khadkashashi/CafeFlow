@@ -29,3 +29,12 @@ class Invoice(models.Model):
             self.tax = self.order.tax
             self.grand_total = self.order.grand_total
         super().save(*args, **kwargs)
+
+    def check_fully_paid(self):
+        total_paid = sum(
+            (p.amount for p in self.payments.filter(status="SUCCESS")),
+            self.grand_total.__class__("0.00"),
+        )
+        if total_paid >= self.grand_total and not self.is_paid:
+            self.is_paid = True
+            self.save(update_fields=["is_paid"])
