@@ -23,7 +23,7 @@ class Order(models.Model):
 
     table = models.ForeignKey(Table, on_delete=models.SET_NULL, null=True, blank=True, related_name="orders")
     waiter = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.SET_NULL,null=True,blank=True,related_name="taken_orders")
-    customer = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.SET_NULL,null=True,blank=True,related_name="placed_orders")
+    customer = models.ForeignKey("customers.Customer",on_delete=models.SET_NULL,null=True,blank=True,related_name="orders")    
     source = models.CharField(max_length=20, choices=Source.choices, default=Source.DINE_IN)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
