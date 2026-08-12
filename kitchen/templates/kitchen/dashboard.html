@@ -1,0 +1,70 @@
+{% extends "orders/base_pos.html" %}
+{% block title %}Kitchen Dashboard{% endblock %}
+
+{% block content %}
+<h3>Kitchen Dashboard</h3>
+
+<div class="row">
+    <div class="col-md-4">
+        <h5>Queued</h5>
+        {% for ticket in queued %}
+        <div class="card mb-2">
+            <div class="card-body">
+                <strong>Order #{{ ticket.order.pk }}</strong>
+                {% if ticket.order.table %}— Table {{ ticket.order.table.table_number }}{% endif %}
+                <ul class="mb-2">
+                    {% for item in ticket.order.items.all %}
+                    <li>{{ item.quantity }}x {{ item.food.name }}</li>
+                    {% endfor %}
+                </ul>
+                <form method="post" action="{% url 'kitchen:start_cooking' ticket.pk %}">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-primary">Start Cooking</button>
+                </form>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-muted">No queued orders.</p>
+        {% endfor %}
+    </div>
+
+    <div class="col-md-4">
+        <h5>In Progress</h5>
+        {% for ticket in in_progress %}
+        <div class="card mb-2 border-warning">
+            <div class="card-body">
+                <strong>Order #{{ ticket.order.pk }}</strong>
+                {% if ticket.order.table %}— Table {{ ticket.order.table.table_number }}{% endif %}
+                <ul class="mb-2">
+                    {% for item in ticket.order.items.all %}
+                    <li>{{ item.quantity }}x {{ item.food.name }}</li>
+                    {% endfor %}
+                </ul>
+                <p class="small text-muted">Chef: {{ ticket.chef|default:"—" }}</p>
+                <form method="post" action="{% url 'kitchen:mark_ready' ticket.pk %}">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-success">Mark Ready</button>
+                </form>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-muted">Nothing in progress.</p>
+        {% endfor %}
+    </div>
+
+    <div class="col-md-4">
+        <h5>Recently Done</h5>
+        {% for ticket in done %}
+        <div class="card mb-2 border-success">
+            <div class="card-body">
+                <strong>Order #{{ ticket.order.pk }}</strong>
+                {% if ticket.order.table %}— Table {{ ticket.order.table.table_number }}{% endif %}
+                <p class="small text-muted mb-0">Completed {{ ticket.completed_at }}</p>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-muted">No completed orders yet.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
