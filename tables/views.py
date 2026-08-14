@@ -1,12 +1,13 @@
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
+from accounts.decorators import role_required
+from accounts.models import User
 from billing.models import Invoice
 from orders.models import Order
 from .models import Table
 
 # Create your views here.
 
-@login_required
+@role_required(User.Role.FRONT_DESK, User.Role.MANAGER)
 def reception_dashboard(request):
     all_tables = Table.objects.all()
     recent_orders = Order.objects.exclude(status__in=[Order.Status.COMPLETED, Order.Status.CANCELLED]).select_related("table")[:10]

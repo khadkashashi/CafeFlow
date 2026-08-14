@@ -1,5 +1,7 @@
 from django.shortcuts import render,get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from accounts.decorators import role_required
+from accounts.models import User
 from tables.models import Table
 from .forms import OrderForm, OrderItemFormSet
 from .models import Order
@@ -7,6 +9,7 @@ from .models import Order
 # Create your views here.
 
 @login_required
+@role_required(User.Role.WAITER, User.Role.FRONT_DESK, User.Role.MANAGER)
 def pos_screen(request):
     if request.method =="POST":
         order_form =OrderForm(request.POST)
