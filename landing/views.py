@@ -3,7 +3,8 @@ from menu.models import Category, FoodItem
 
 # Create your views here.
 def home(request):
-    return render(request, "landing/home.html")
+    featured = FoodItem.objects.filter(is_available=True).select_related("category")[:3]
+    return render(request, "landing/home.html", {"featured": featured})
 
 
 def menu_page(request):
