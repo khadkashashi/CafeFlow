@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Menu{% endblock %}
+
+{% block content %}
+<h3>Our Menu</h3>
+
+{% for category in categories %}
+<h5 class="mt-4">{{ category.name }}</h5>
+<div class="row">
+    {% for food in category.items.all %}
+    {% if food.is_available %}
+    <div class="col-md-4 mb-3">
+        <div class="card h-100">
+            {% if food.image %}
+            <img src="{{ food.image.url }}" class="card-img-top" alt="{{ food.name }}" style="height: 180px; object-fit: cover;">
+            {% else %}
+            <div class="bg-secondary bg-opacity-25 d-flex align-items-center justify-content-center" style="height: 180px;">
+                <span class="text-muted">No image</span>
+            </div>
+            {% endif %}
+            <div class="card-body">
+                <h6>{{ food.name }}</h6>
+                <p class="small text-muted">{{ food.description }}</p>
+                <p><strong>Rs.{{ food.price }}</strong></p>
+                <form method="post" action="{% url 'cart:cart_add' food.id %}" class="d-flex gap-2">
+                    {% csrf_token %}
+                    <input type="number" name="quantity" value="1" min="1" class="form-control form-control-sm" style="width: 70px;">
+                    <button class="btn btn-sm btn-primary">Add to Cart</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+</div>
+{% empty %}
+<p class="text-muted">No categories yet.</p>
+{% endfor %}
+{% endblock %}

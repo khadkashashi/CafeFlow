@@ -10,6 +10,9 @@
         <div class="container">
             <span class="navbar-brand">☕ CafeFlow</span>
             <div class="navbar-nav">
+                <a class="nav-link" href="{% url 'landing:home' %}">Home</a>
+                <a class="nav-link" href="{% url 'landing:menu' %}">Menu</a>
+                <a class="nav-link" href="{% url 'cart:cart_detail' %}">Cart</a>
                 <a class="nav-link" href="{% url 'reports:dashboard' %}">Reports</a>
                 <a class="nav-link" href="{% url 'orders:pos_screen' %}">POS</a>
                 <a class="nav-link" href="{% url 'kitchen:dashboard' %}">Kitchen</a>

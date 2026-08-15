@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Welcome to CafeFlow{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+    <h1>☕ Welcome to CafeFlow</h1>
+    <p class="lead">Fresh food, fast service, made simple.</p>
+    <a href="{% url 'landing:menu' %}" class="btn btn-primary btn-lg">View Menu</a>
+</div>
+{% endblock %}

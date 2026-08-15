@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'notifications',
     'reports',
     'cart',
+    'landing',
 ]
 
 MIDDLEWARE = [
