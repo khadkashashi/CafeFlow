@@ -294,10 +294,13 @@
         <a href="{% url 'landing:menu' %}">Menu</a>
         <a href="{% url 'cart:cart_detail' %}">Cart</a>
         {% if user.is_authenticated %}
-        <a href="{% url 'logout' %}" class="cta">Log out</a>
-        {% else %}
-        <a href="{% url 'login' %}" class="cta">Log in</a>
-        {% endif %}
+<form method="post" action="{% url 'logout' %}" style="display:inline;">
+    {% csrf_token %}
+    <button type="submit" class="cta" style="background:none;border:1px solid var(--copper);color:inherit;font:inherit;cursor:pointer;">Log out</button>
+</form>
+{% else %}
+<a href="{% url 'login' %}" class="cta">Log in</a>
+{% endif %}
     </div>
 </nav>
 

@@ -132,7 +132,8 @@ USE_TZ = True
 STATIC_URL = 'static/'
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
-
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "landing:home"
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
