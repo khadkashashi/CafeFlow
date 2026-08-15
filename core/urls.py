@@ -25,6 +25,7 @@ urlpatterns = [
     path('kitchen/',include("kitchen.urls")),
     path('reception/', include("tables.urls")),
     path("reports/", include("reports.urls")),
+    path("cart/", include("cart.urls")),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
