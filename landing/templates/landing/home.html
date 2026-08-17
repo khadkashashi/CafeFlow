@@ -358,7 +358,78 @@
         <p>Every order — whether you're at a table or ordering ahead online — goes through the same kitchen, at the same pace, with the same care.</p>
     </div>
 </section>
+<div class="reviews-grid">
 
+    {% for review in reviews %}
+
+        <div class="review-card">
+
+            <div class="review-avatar">
+
+                {% if review.customer.profile_picture %}
+
+                    <img
+                        src="{{ review.customer.profile_picture.url }}"
+                        alt="{{ review.customer }}"
+                    >
+
+                {% else %}
+
+                    <div class="default-avatar">
+                        {{ review.customer.username|first|upper }}
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <div class="review-stars">
+
+                {% for i in "12345" %}
+
+                    {% if forloop.counter <= review.rating %}
+                        ★
+                    {% else %}
+                        ☆
+                    {% endif %}
+
+                {% endfor %}
+
+            </div>
+
+
+            <p class="review-comment">
+
+                "{{ review.comment }}"
+
+            </p>
+
+
+            <h3 class="review-name">
+
+                {{ review.customer.get_full_name }}
+
+            </h3>
+
+
+            <span class="review-role">
+
+                Verified Customer
+
+            </span>
+
+        </div>
+
+    {% empty %}
+
+        <p>
+            Be the first to leave us a review.
+        </p>
+
+    {% endfor %}
+
+</div>
 <footer>
     <div class="col">
         <div class="brand">

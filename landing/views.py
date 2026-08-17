@@ -1,10 +1,17 @@
 from django.shortcuts import render
 from menu.models import Category, FoodItem
+from landing.models import Review
 
 # Create your views here.
 def home(request):
     featured = FoodItem.objects.filter(is_available=True).select_related("category")[:3]
-    return render(request, "landing/home.html", {"featured": featured})
+    reviews = Review.objects.select_related("customer").order_by("created_at")[:4]
+    context = {
+        "reviews": reviews,
+        "featured": featured
+    }
+
+    return render(request,"landing/home.html",context)
 
 
 def menu_page(request):
