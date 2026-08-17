@@ -15,3 +15,19 @@ class User(AbstractUser):
 
     def __str__(self):
         return f"{self.username} ({self.role})"
+
+    @property
+    def can_access_pos(self):
+        return self.is_superuser or self.role in (self.Role.WAITER, self.Role.FRONT_DESK, self.Role.MANAGER)
+
+    @property
+    def can_access_kitchen(self):
+        return self.is_superuser or self.role in (self.Role.CHEF, self.Role.MANAGER)
+
+    @property
+    def can_access_reception(self):
+        return self.is_superuser or self.role in (self.Role.FRONT_DESK, self.Role.MANAGER)
+
+    @property
+    def can_access_reports(self):
+        return self.is_superuser or self.role == self.Role.MANAGER
