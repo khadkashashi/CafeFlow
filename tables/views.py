@@ -64,3 +64,11 @@ def send_order_to_kitchen(request, pk):
     order = get_object_or_404(Order, pk=pk)
     order.send_to_kitchen()
     return redirect("tables:table_detail", pk=order.table.pk)
+
+@role_required(User.Role.WAITER, User.Role.FRONT_DESK, User.Role.MANAGER)
+@require_POST
+def mark_table_clean(request, pk):
+    table = get_object_or_404(Table, pk=pk)
+    if table.status == Table.Status.CLEANING:
+        table.mark_available()
+    return redirect("tables:reception_dashboard")

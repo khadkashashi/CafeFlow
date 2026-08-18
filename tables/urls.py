@@ -8,4 +8,5 @@ urlpatterns = [
     path("table/<int:pk>/start/", views.start_order, name="start_order"),
     path("order/<int:pk>/add-item/", views.add_item_to_order, name="add_item_to_order"),
     path("order/<int:pk>/send/", views.send_order_to_kitchen, name="send_order_to_kitchen"),
+    path("table/<int:pk>/clean/", views.mark_table_clean, name="mark_table_clean"),
 ]

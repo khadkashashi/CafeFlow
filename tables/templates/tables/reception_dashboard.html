@@ -24,6 +24,12 @@
                     {% else %}bg-secondary{% endif %}">
                     {{ table.get_status_display }}
                 </span>
+                {% if table.status == 'CLEANING' %}
+                <form method="post" action="{% url 'tables:mark_table_clean' table.pk %}" class="mt-2">
+                      {% csrf_token %}
+                      <button class="btn btn-sm btn-outline-secondary">Mark Clean</button>
+                </form>
+                {% endif %}
             </div>
         </div>
         </a>

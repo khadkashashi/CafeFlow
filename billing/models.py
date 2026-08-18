@@ -37,3 +37,7 @@ class Invoice(models.Model):
            self.save(update_fields=["is_paid"])
            self.order.status = self.order.Status.COMPLETED
            self.order.save(update_fields=["status"])
+           if self.order.table:
+            from tables.models import Table
+            self.order.table.status = Table.Status.CLEANING
+            self.order.table.save(update_fields=["status"])
