@@ -1,14 +1,13 @@
 from decimal import Decimal
-
 from django.conf import settings
 from django.db import models
-
 from menu.models import FoodItem
 from tables.models import Table
 
 
 class Order(models.Model):
     class Status(models.TextChoices):
+        DRAFT = "DRAFT", "Draft"
         PENDING = "PENDING", "Pending"
         PREPARING = "PREPARING", "Preparing"
         READY = "READY", "Ready"
@@ -22,10 +21,10 @@ class Order(models.Model):
         PICKUP = "PICKUP", "Pickup"
 
     table = models.ForeignKey(Table, on_delete=models.SET_NULL, null=True, blank=True, related_name="orders")
-    waiter = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.SET_NULL,null=True,blank=True,related_name="taken_orders")
-    customer = models.ForeignKey("customers.Customer",on_delete=models.SET_NULL,null=True,blank=True,related_name="orders")    
+    waiter = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="taken_orders")
+    customer = models.ForeignKey("customers.Customer", on_delete=models.SET_NULL, null=True, blank=True, related_name="orders")
     source = models.CharField(max_length=20, choices=Source.choices, default=Source.DINE_IN)
-    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.DRAFT)
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
     discount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
     tax = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
@@ -47,6 +46,25 @@ class Order(models.Model):
         self.tax = (items_total - self.discount) * tax_rate
         self.grand_total = self.subtotal - self.discount + self.tax
         self.save(update_fields=["subtotal", "tax", "grand_total"])
+
+    @classmethod
+    def start_draft(cls, table, waiter=None, source=None):
+        """Front desk clicks 'Start Order' on a table — creates the draft and occupies the table."""
+        order = cls.objects.create(
+            table=table, waiter=waiter, source=source or cls.Source.DINE_IN, status=cls.Status.DRAFT
+        )
+        if table:
+            table.mark_occupied()
+        return order
+
+    def send_to_kitchen(self):
+        """Explicitly push a draft order into the kitchen queue. Idempotent — safe to call more than once."""
+        from kitchen.models import KitchenOrder
+
+        if self.status == self.Status.DRAFT:
+            self.status = self.Status.PENDING
+            self.save(update_fields=["status"])
+        KitchenOrder.objects.get_or_create(order=self)
 
 
 class OrderItem(models.Model):

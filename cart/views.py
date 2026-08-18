@@ -43,6 +43,7 @@ def checkout(request):
         OrderItem.objects.create(order=order, food=item["food"], quantity=item["quantity"])
 
     order.recalculate_totals()
+    order.send_to_kitchen()
     cart.clear()
 
     return redirect("orders:order_detail", pk=order.pk)
