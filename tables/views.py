@@ -72,3 +72,31 @@ def mark_table_clean(request, pk):
     if table.status == Table.Status.CLEANING:
         table.mark_available()
     return redirect("tables:reception_dashboard")
+
+
+@role_required(User.Role.WAITER, User.Role.FRONT_DESK, User.Role.MANAGER)
+@require_POST
+def remove_item_from_order(request, item_pk):
+    item = get_object_or_404(OrderItem, pk=item_pk)
+    table_pk = item.order.table.pk
+    item.delete()
+    item.order.recalculate_totals()
+    return redirect("tables:table_detail", pk=table_pk)
+
+
+@role_required(User.Role.WAITER, User.Role.FRONT_DESK, User.Role.MANAGER)
+@require_POST
+def update_item_quantity(request, item_pk):
+    item = get_object_or_404(OrderItem, pk=item_pk)
+    quantity = int(request.POST.get("quantity", item.quantity))
+
+    if quantity < 1:
+        table_pk = item.order.table.pk
+        item.delete()
+        item.order.recalculate_totals()
+    else:
+        item.quantity = quantity
+        item.save()  # save() already calls order.recalculate_totals()
+        table_pk = item.order.table.pk
+
+    return redirect("tables:table_detail", pk=table_pk)
