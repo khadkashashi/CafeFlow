@@ -20,18 +20,24 @@
         <tr>
             <td>{{ item.food.name }}</td>
             <td style="width: 140px;">
+                {% if order.status == "DRAFT" %}
                 <form method="post" action="{% url 'tables:update_item_quantity' item.pk %}" class="d-flex gap-1">
                     {% csrf_token %}
                     <input type="number" name="quantity" value="{{ item.quantity }}" min="0" class="form-control form-control-sm" style="width: 65px;">
                     <button class="btn btn-sm btn-outline-secondary">Update</button>
                 </form>
+                {% else %}
+                {{ item.quantity }}
+                {% endif %}
             </td>
             <td>Rs.{{ item.line_total }}</td>
             <td>
+                {% if order.status == "DRAFT" %}
                 <form method="post" action="{% url 'tables:remove_item_from_order' item.pk %}">
                     {% csrf_token %}
                     <button class="btn btn-sm btn-outline-danger">Remove</button>
                 </form>
+                {% endif %}
             </td>
         </tr>
         {% empty %}
@@ -39,7 +45,6 @@
         {% endfor %}
     </tbody>
 </table>
-
 <p><strong>Subtotal:</strong> Rs.{{ order.subtotal }} &nbsp; <strong>Tax:</strong> Rs.{{ order.tax }} &nbsp; <strong>Grand Total:</strong> Rs.{{ order.grand_total }}</p>
 
 <div class="row mt-4">

@@ -79,8 +79,10 @@ def mark_table_clean(request, pk):
 def remove_item_from_order(request, item_pk):
     item = get_object_or_404(OrderItem, pk=item_pk)
     table_pk = item.order.table.pk
-    item.delete()
-    item.order.recalculate_totals()
+    if item.order.status == Order.Status.DRAFT:
+        item.delete()
+        item.order.recalculate_totals()
+
     return redirect("tables:table_detail", pk=table_pk)
 
 
@@ -88,15 +90,14 @@ def remove_item_from_order(request, item_pk):
 @require_POST
 def update_item_quantity(request, item_pk):
     item = get_object_or_404(OrderItem, pk=item_pk)
-    quantity = int(request.POST.get("quantity", item.quantity))
-
-    if quantity < 1:
-        table_pk = item.order.table.pk
-        item.delete()
-        item.order.recalculate_totals()
-    else:
-        item.quantity = quantity
-        item.save()  # save() already calls order.recalculate_totals()
-        table_pk = item.order.table.pk
+    table_pk = item.order.table.pk
+    if item.order.status == Order.Status.DRAFT:
+        quantity = int(request.POST.get("quantity", item.quantity))
+        if quantity < 1:
+            item.delete()
+            item.order.recalculate_totals()
+        else:
+            item.quantity = quantity
+            item.save()
 
     return redirect("tables:table_detail", pk=table_pk)
