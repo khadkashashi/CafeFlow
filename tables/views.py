@@ -9,7 +9,7 @@ from menu.models import FoodItem
 from decimal import Decimal, InvalidOperation
 # Create your views here.
 
-@role_required(User.Role.FRONT_DESK, User.Role.MANAGER)
+@role_required(User.Role.FRONT_DESK, User.Role.MANAGER)   
 def reception_dashboard(request):
     all_tables = Table.objects.all()
     recent_orders = Order.objects.exclude(status__in=[Order.Status.COMPLETED, Order.Status.CANCELLED]).select_related("table")[:10]
@@ -121,3 +121,8 @@ def apply_discount(request, pk):
         order.recalculate_totals()
 
     return redirect("tables:table_detail", pk=order.table.pk)
+
+@role_required(User.Role.WAITER, User.Role.MANAGER)
+def waiter_tables(request):
+    tables = Table.objects.all()
+    return render(request, "tables/waiter_tables.html", {"tables": tables})

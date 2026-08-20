@@ -5,22 +5,26 @@
 <h3>Table {{ table.table_number }} — {{ table.get_status_display }}</h3>
 
 {% if not order %}
-<form method="post" action="{% url 'tables:start_order' table.pk %}">
-    {% csrf_token %}
-    <button class="btn btn-success mt-3">Start Order</button>
-</form>
+    {% if user.can_manage_orders %}
+    <form method="post" action="{% url 'tables:start_order' table.pk %}">
+        {% csrf_token %}
+        <button class="btn btn-success mt-3">Start Order</button>
+    </form>
+    {% else %}
+    <p class="text-muted">No active order for this table.</p>
+    {% endif %}
 
 {% else %}
 <p class="text-muted">Order #{{ order.pk }} — {{ order.get_status_display }}</p>
 
 <table class="table bg-white">
-    <thead><tr><th>Item</th><th>Qty</th><th>Line Total</th><th></th></tr></thead>
+    <thead><tr><th>Item</th><th>Qty</th><th>Line Total</th>{% if user.can_manage_orders and order.status == "DRAFT" %}<th></th>{% endif %}</tr></thead>
     <tbody>
         {% for item in order.items.all %}
         <tr>
             <td>{{ item.food.name }}</td>
             <td style="width: 140px;">
-                {% if order.status == "DRAFT" %}
+                {% if user.can_manage_orders and order.status == "DRAFT" %}
                 <form method="post" action="{% url 'tables:update_item_quantity' item.pk %}" class="d-flex gap-1">
                     {% csrf_token %}
                     <input type="number" name="quantity" value="{{ item.quantity }}" min="0" class="form-control form-control-sm" style="width: 65px;">
@@ -31,22 +35,24 @@
                 {% endif %}
             </td>
             <td>Rs.{{ item.line_total }}</td>
+            {% if user.can_manage_orders and order.status == "DRAFT" %}
             <td>
-                {% if order.status == "DRAFT" %}
                 <form method="post" action="{% url 'tables:remove_item_from_order' item.pk %}">
                     {% csrf_token %}
                     <button class="btn btn-sm btn-outline-danger">Remove</button>
                 </form>
-                {% endif %}
             </td>
+            {% endif %}
         </tr>
         {% empty %}
         <tr><td colspan="4" class="text-muted">No items yet.</td></tr>
         {% endfor %}
     </tbody>
 </table>
-<p><strong>Subtotal:</strong> Rs.{{ order.subtotal }} &nbsp; <strong>Tax:</strong> Rs.{{ order.tax }} &nbsp; <strong>Grand Total:</strong> Rs.{{ order.grand_total }}</p>
-{% if order.status == "DRAFT" %}
+
+<p><strong>Subtotal:</strong> Rs.{{ order.subtotal }} &nbsp; <strong>Discount:</strong> Rs.{{ order.discount }} &nbsp; <strong>Tax:</strong> Rs.{{ order.tax }} &nbsp; <strong>Grand Total:</strong> Rs.{{ order.grand_total }}</p>
+
+{% if user.can_bill and order.status == "DRAFT" %}
 <form method="post" action="{% url 'tables:apply_discount' order.pk %}" class="d-flex gap-2 mb-4" style="max-width: 300px;">
     {% csrf_token %}
     <input type="number" step="0.01" name="discount" value="{{ order.discount }}" class="form-control" placeholder="Discount Rs.">
@@ -55,6 +61,7 @@
 {% endif %}
 
 <div class="row mt-4">
+    {% if user.can_manage_orders %}
     <div class="col-md-6">
         <h5>Add Item</h5>
         <form method="post" action="{% url 'tables:add_item_to_order' order.pk %}" class="d-flex gap-2">
@@ -68,20 +75,22 @@
             <button class="btn btn-primary">Add</button>
         </form>
     </div>
+    {% endif %}
 
     <div class="col-md-6 d-flex align-items-end justify-content-end gap-2">
-    {% if order.status == "DRAFT" %}
-    <form method="post" action="{% url 'tables:send_order_to_kitchen' order.pk %}">
-        {% csrf_token %}
-        <button class="btn btn-warning btn-lg">Send to Kitchen</button>
-    </form>
-    {% else %}
-    <span class="badge bg-info text-dark align-self-center">Already sent — new items go straight to the kitchen</span>
-    {% if order.status != "COMPLETED" %}
-    <a href="{% url 'billing:generate_bill' order.pk %}" class="btn btn-outline-dark btn-lg">Generate Bill</a>
-    {% endif %}
-    {% endif %}
-</div>
+        {% if user.can_manage_orders and order.status == "DRAFT" %}
+        <form method="post" action="{% url 'tables:send_order_to_kitchen' order.pk %}">
+            {% csrf_token %}
+            <button class="btn btn-warning btn-lg">Send to Kitchen</button>
+        </form>
+        {% elif order.status != "DRAFT" %}
+        <span class="badge bg-info text-dark align-self-center">Sent to kitchen</span>
+        {% endif %}
+
+        {% if user.can_bill and order.status != "DRAFT" and order.status != "COMPLETED" %}
+        <a href="{% url 'billing:generate_bill' order.pk %}" class="btn btn-outline-dark btn-lg">Generate Bill</a>
+        {% endif %}
+    </div>
 </div>
 {% endif %}
 {% endblock %}

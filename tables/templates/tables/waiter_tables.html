@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Tables{% endblock %}
+
+{% block content %}
+<h3>Tables</h3>
+<div class="row mt-4">
+    {% for table in tables %}
+    <div class="col-md-2 mb-3">
+        <a href="{% url 'tables:table_detail' table.pk %}" class="text-decoration-none">
+            <div class="card text-center
+                {% if table.status == 'AVAILABLE' %}border-success
+                {% elif table.status == 'OCCUPIED' %}border-danger
+                {% elif table.status == 'RESERVED' %}border-warning
+                {% else %}border-secondary{% endif %}">
+                <div class="card-body">
+                    <h6>Table {{ table.table_number }}</h6>
+                    <span class="badge
+                        {% if table.status == 'AVAILABLE' %}bg-success
+                        {% elif table.status == 'OCCUPIED' %}bg-danger
+                        {% elif table.status == 'RESERVED' %}bg-warning
+                        {% else %}bg-secondary{% endif %}">
+                        {{ table.get_status_display }}
+                    </span>
+                </div>
+            </div>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

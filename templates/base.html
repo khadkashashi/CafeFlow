@@ -21,7 +21,18 @@
     {% endif %}
     {% if user.can_access_reports %}
     <a class="nav-link" href="{% url 'reports:dashboard' %}">Reports</a>
-    {% endif %}
+    {% endif %}{% if user.can_manage_orders %}
+<a class="nav-link" href="{% url 'tables:waiter_tables' %}">Tables</a>
+{% endif %}
+{% if user.can_access_kitchen %}
+<a class="nav-link" href="{% url 'kitchen:dashboard' %}">Kitchen</a>
+{% endif %}
+{% if user.can_bill %}
+<a class="nav-link" href="{% url 'tables:reception_dashboard' %}">Reception</a>
+{% endif %}
+{% if user.can_access_reports %}
+<a class="nav-link" href="{% url 'reports:dashboard' %}">Reports</a>
+{% endif %}
 </div>
            {% if user.is_authenticated %}
 <span class="navbar-text text-light">{{ user.username }} ({{ user.role }})</span>

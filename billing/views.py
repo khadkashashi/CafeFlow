@@ -6,7 +6,7 @@ from orders.models import Order
 from .models import Invoice
 
 # Create your views here.
-@role_required(User.Role.WAITER, User.Role.FRONT_DESK, User.Role.MANAGER)
+@role_required( User.Role.FRONT_DESK, User.Role.MANAGER)
 def generate_bill(request, order_pk):
     order = get_object_or_404(Order, pk=order_pk)
     invoice, created = Invoice.objects.get_or_create(order=order)
@@ -21,3 +21,4 @@ def invoice_detail(request, pk):
 def receipt(request, pk):
     invoice = get_object_or_404(Invoice, pk=pk)
     return render(request, "billing/receipt.html", {"invoice": invoice})
+

@@ -31,3 +31,13 @@ class User(AbstractUser):
     @property
     def can_access_reports(self):
         return self.is_superuser or self.role == self.Role.MANAGER
+
+    @property
+    def can_manage_orders(self):
+        """Can start orders, add/remove items, send to kitchen —> the waiter's job."""
+        return self.is_superuser or self.role in (self.Role.WAITER, self.Role.MANAGER)
+
+    @property
+    def can_bill(self):
+        """Can view billing, apply discounts, generate bills, take payment —> front desk's job."""
+        return self.is_superuser or self.role in (self.Role.FRONT_DESK, self.Role.MANAGER)
