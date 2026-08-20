@@ -62,16 +62,19 @@
         </form>
     </div>
 
-    <div class="col-md-6 d-flex align-items-end justify-content-end">
-        {% if order.status == "DRAFT" %}
-        <form method="post" action="{% url 'tables:send_order_to_kitchen' order.pk %}">
-            {% csrf_token %}
-            <button class="btn btn-warning btn-lg">Send to Kitchen</button>
-        </form>
-        {% else %}
-        <span class="badge bg-info text-dark">Already sent — new items go straight to the kitchen</span>
-        {% endif %}
-    </div>
+    <div class="col-md-6 d-flex align-items-end justify-content-end gap-2">
+    {% if order.status == "DRAFT" %}
+    <form method="post" action="{% url 'tables:send_order_to_kitchen' order.pk %}">
+        {% csrf_token %}
+        <button class="btn btn-warning btn-lg">Send to Kitchen</button>
+    </form>
+    {% else %}
+    <span class="badge bg-info text-dark align-self-center">Already sent — new items go straight to the kitchen</span>
+    {% if order.status != "COMPLETED" %}
+    <a href="{% url 'billing:generate_bill' order.pk %}" class="btn btn-outline-dark btn-lg">Generate Bill</a>
+    {% endif %}
+    {% endif %}
+</div>
 </div>
 {% endif %}
 {% endblock %}

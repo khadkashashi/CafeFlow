@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Take Payment{% endblock %}
+
+{% block content %}
+<h3>Payment — Invoice {{ invoice.invoice_number }}</h3>
+<h4 class="mb-4">Total Due: Rs.{{ invoice.grand_total }}</h4>
+
+{% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+
+<form method="post" style="max-width: 400px;">
+    {% csrf_token %}
+
+    <label class="form-label">Payment Method</label>
+    <select name="payment_method" class="form-select mb-3">
+        {% for value, label in methods %}
+        <option value="{{ value }}">{{ label }}</option>
+        {% endfor %}
+    </select>
+
+    <label class="form-label">Amount Received</label>
+    <input type="number" step="0.01" name="received" value="{{ invoice.grand_total }}" class="form-control mb-3">
+
+    <button class="btn btn-success btn-lg w-100">Confirm Payment</button>
+</form>
+{% endblock %}

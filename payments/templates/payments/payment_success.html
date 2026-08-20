@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Payment Complete{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+    <h2>✅ Payment Received</h2>
+    <table class="table bg-white mt-4" style="max-width: 400px; margin: 0 auto;">
+        <tr><td>Total</td><td>Rs.{{ invoice.grand_total }}</td></tr>
+        <tr><td>Received ({{ method }})</td><td>Rs.{{ received }}</td></tr>
+        <tr><th>Change</th><th>Rs.{{ change }}</th></tr>
+    </table>
+    <a href="{% url 'tables:reception_dashboard' %}" class="btn btn-primary mt-4">Back to Reception</a>
+</div>
+{% endblock %}
