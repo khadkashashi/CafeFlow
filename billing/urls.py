@@ -6,4 +6,5 @@ urlpatterns = [
     path("order/<int:order_pk>/generate/", views.generate_bill, name="generate_bill"),
     path("invoice/<int:pk>/", views.invoice_detail, name="invoice_detail"),
     path("invoice/<int:pk>/receipt/", views.receipt, name="receipt"),
+    path("order/<int:order_pk>/bill/", views.order_bill, name="order_bill"),
 ]

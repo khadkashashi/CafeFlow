@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Order #{{ order.pk }} — Bill{% endblock %}
+
+{% block content %}
+<h3>Order #{{ order.pk }}</h3>
+
+{% if order.source == "DINE_IN" %}
+<span class="badge bg-secondary">Dine In — {{ order.table|default:"No table" }}</span>
+{% elif order.source == "ONLINE" %}
+<span class="badge bg-info text-dark">Online Order{% if order.customer %} — {{ order.customer.name }}{% endif %}</span>
+{% else %}
+<span class="badge bg-warning text-dark">Pickup{% if order.customer %} — {{ order.customer.name }}{% endif %}</span>
+{% endif %}
+
+<table class="table bg-white mt-4">
+    <thead><tr><th>Item</th><th>Qty</th><th>Line Total</th></tr></thead>
+    <tbody>
+        {% for item in order.items.all %}
+        <tr>
+            <td>{{ item.food.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>Rs.{{ item.line_total }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<p><strong>Subtotal:</strong> Rs.{{ order.subtotal }} &nbsp; <strong>Discount:</strong> Rs.{{ order.discount }} &nbsp; <strong>Tax:</strong> Rs.{{ order.tax }} &nbsp; <strong>Grand Total:</strong> Rs.{{ order.grand_total }}</p>
+
+{% if not invoice or not invoice.is_paid %}
+<form method="post" action="{% url 'tables:apply_discount' order.pk %}" class="d-flex gap-2 mb-4" style="max-width: 300px;">
+    {% csrf_token %}
+    <input type="number" step="0.01" name="discount" value="{{ order.discount }}" class="form-control" placeholder="Discount Rs.">
+    <button class="btn btn-outline-primary">Apply</button>
+</form>
+
+{% if invoice %}
+<a href="{% url 'payments:payment_screen' invoice.pk %}" class="btn btn-success btn-lg">Take Payment</a>
+{% else %}
+<a href="{% url 'billing:generate_bill' order.pk %}" class="btn btn-outline-dark btn-lg">Generate Bill</a>
+{% endif %}
+
+{% else %}
+<span class="badge bg-success">Paid</span>
+<a href="{% url 'billing:receipt' invoice.pk %}" class="btn btn-outline-dark ms-2" target="_blank">View Receipt</a>
+{% endif %}
+{% endblock %}

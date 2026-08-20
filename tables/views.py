@@ -107,6 +107,7 @@ def update_item_quantity(request, item_pk):
 @require_POST
 def apply_discount(request, pk):
     order = get_object_or_404(Order, pk=pk)
+
     if order.status not in (Order.Status.COMPLETED, Order.Status.CANCELLED):
         try:
             discount = Decimal(request.POST.get("discount", "0"))
@@ -117,10 +118,8 @@ def apply_discount(request, pk):
         order.discount = discount
         order.save(update_fields=["discount"])
         order.recalculate_totals()
-    if order.table:
-        return redirect("tables:table_detail", pk=order.table.pk)
-    return redirect("tables:reception_dashboard")
 
+    return redirect("billing:order_bill", order_pk=order.pk)
 @role_required(User.Role.WAITER, User.Role.MANAGER)
 def waiter_tables(request):
     tables = Table.objects.all()

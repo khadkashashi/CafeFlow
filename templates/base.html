@@ -10,18 +10,7 @@
         <div class="container">
             <span class="navbar-brand">☕ CafeFlow</span>
            <div class="navbar-nav">
-    {% if user.can_access_pos %}
-    <a class="nav-link" href="{% url 'orders:pos_screen' %}">POS</a>
-    {% endif %}
-    {% if user.can_access_kitchen %}
-    <a class="nav-link" href="{% url 'kitchen:dashboard' %}">Kitchen</a>
-    {% endif %}
-    {% if user.can_access_reception %}
-    <a class="nav-link" href="{% url 'tables:reception_dashboard' %}">Reception</a>
-    {% endif %}
-    {% if user.can_access_reports %}
-    <a class="nav-link" href="{% url 'reports:dashboard' %}">Reports</a>
-    {% endif %}{% if user.can_manage_orders %}
+{% if user.can_manage_orders %}
 <a class="nav-link" href="{% url 'tables:waiter_tables' %}">Tables</a>
 {% endif %}
 {% if user.can_access_kitchen %}

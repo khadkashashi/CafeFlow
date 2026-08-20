@@ -22,3 +22,8 @@ def receipt(request, pk):
     invoice = get_object_or_404(Invoice, pk=pk)
     return render(request, "billing/receipt.html", {"invoice": invoice})
 
+@role_required(User.Role.FRONT_DESK, User.Role.MANAGER)
+def order_bill(request, order_pk):
+    order = get_object_or_404(Order, pk=order_pk)
+    invoice = Invoice.objects.filter(order=order).first()
+    return render(request, "billing/order_bill.html", {"order": order, "invoice": invoice})
