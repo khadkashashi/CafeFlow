@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Receipt {{ invoice.invoice_number }}</title>
+    <style>
+        body { font-family: 'Courier New', monospace; max-width: 320px; margin: 2rem auto; color: #111; }
+        h2 { text-align: center; margin-bottom: 0; }
+        .center { text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        td { padding: 2px 0; }
+        .right { text-align: right; }
+        hr { border: none; border-top: 1px dashed #333; }
+        .total-row td { font-weight: bold; font-size: 1.1rem; }
+        @media print {
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <h2 class="center">☕ CafeFlow</h2>
+    <p class="center">Butwal, Lumbini Province</p>
+    <hr>
+    <p>Invoice: {{ invoice.invoice_number }}<br>
+       Order: #{{ invoice.order.pk }}<br>
+       Date: {{ invoice.issued_at }}</p>
+    <hr>
+    <table>
+        {% for item in invoice.order.items.all %}
+        <tr>
+            <td>{{ item.food.name }} x{{ item.quantity }}</td>
+            <td class="right">Rs.{{ item.line_total }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <hr>
+    <table>
+        <tr><td>Subtotal</td><td class="right">Rs.{{ invoice.subtotal }}</td></tr>
+        <tr><td>Discount</td><td class="right">Rs.{{ invoice.discount }}</td></tr>
+        <tr><td>Tax</td><td class="right">Rs.{{ invoice.tax }}</td></tr>
+        <tr class="total-row"><td>TOTAL</td><td class="right">Rs.{{ invoice.grand_total }}</td></tr>
+    </table>
+    <hr>
+    <p class="center">Thank you — see you again soon.</p>
+
+    <button class="no-print" onclick="window.print()" style="display:block; margin: 2rem auto; padding: 0.6rem 1.5rem;">Print Receipt</button>
+</body>
+</html>

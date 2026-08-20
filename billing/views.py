@@ -16,3 +16,8 @@ def generate_bill(request, order_pk):
 def invoice_detail(request, pk):
     invoice = get_object_or_404(Invoice, pk=pk)
     return render(request, "billing/invoice_detail.html", {"invoice": invoice})
+
+@login_required
+def receipt(request, pk):
+    invoice = get_object_or_404(Invoice, pk=pk)
+    return render(request, "billing/receipt.html", {"invoice": invoice})
