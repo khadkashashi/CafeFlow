@@ -9,17 +9,18 @@ from menu.models import FoodItem
 from decimal import Decimal, InvalidOperation
 # Create your views here.
 
-@role_required(User.Role.FRONT_DESK, User.Role.MANAGER)   
+@role_required(User.Role.FRONT_DESK, User.Role.MANAGER)
 def reception_dashboard(request):
-    all_tables = Table.objects.all()
-    recent_orders = Order.objects.exclude(status__in=[Order.Status.COMPLETED, Order.Status.CANCELLED]).select_related("table")[:10]
+    active_orders = Order.objects.exclude(status__in=[Order.Status.COMPLETED, Order.Status.CANCELLED, Order.Status.DRAFT]).select_related("table").order_by("-created_at")
     pending_bills = Invoice.objects.filter(is_paid=False).select_related("order")
-    context={
-    "tables": all_tables,
-    "recent_orders": recent_orders,
-    "pending_bills": pending_bills,
-    }
-    return render(request,"tables/reception_dashboard.html",context)
+    all_tables = Table.objects.all()
+    return render(request,"tables/reception_dashboard.html",
+        {
+            "active_orders": active_orders,
+            "pending_bills": pending_bills,
+            "tables": all_tables,
+        },
+    )
 
 ACTIVE_STATUSES_EXCLUDE = [Order.Status.COMPLETED, Order.Status.CANCELLED]
 @role_required(User.Role.WAITER, User.Role.FRONT_DESK, User.Role.MANAGER)
@@ -102,25 +103,23 @@ def update_item_quantity(request, item_pk):
 
     return redirect("tables:table_detail", pk=table_pk)
 
-@role_required(User.Role.WAITER, User.Role.FRONT_DESK, User.Role.MANAGER)
+@role_required(User.Role.FRONT_DESK, User.Role.MANAGER)
 @require_POST
 def apply_discount(request, pk):
     order = get_object_or_404(Order, pk=pk)
-
-    if order.status == Order.Status.DRAFT:
+    if order.status not in (Order.Status.COMPLETED, Order.Status.CANCELLED):
         try:
             discount = Decimal(request.POST.get("discount", "0"))
         except InvalidOperation:
             discount = Decimal("0.00")
-
         if discount < 0:
             discount = Decimal("0.00")
-
         order.discount = discount
         order.save(update_fields=["discount"])
         order.recalculate_totals()
-
-    return redirect("tables:table_detail", pk=order.table.pk)
+    if order.table:
+        return redirect("tables:table_detail", pk=order.table.pk)
+    return redirect("tables:reception_dashboard")
 
 @role_required(User.Role.WAITER, User.Role.MANAGER)
 def waiter_tables(request):

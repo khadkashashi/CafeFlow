@@ -52,7 +52,7 @@
 
 <p><strong>Subtotal:</strong> Rs.{{ order.subtotal }} &nbsp; <strong>Discount:</strong> Rs.{{ order.discount }} &nbsp; <strong>Tax:</strong> Rs.{{ order.tax }} &nbsp; <strong>Grand Total:</strong> Rs.{{ order.grand_total }}</p>
 
-{% if user.can_bill and order.status == "DRAFT" %}
+{% if user.can_bill and order.status != "COMPLETED" and order.status != "CANCELLED" %}
 <form method="post" action="{% url 'tables:apply_discount' order.pk %}" class="d-flex gap-2 mb-4" style="max-width: 300px;">
     {% csrf_token %}
     <input type="number" step="0.01" name="discount" value="{{ order.discount }}" class="form-control" placeholder="Discount Rs.">
