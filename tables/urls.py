@@ -11,4 +11,5 @@ urlpatterns = [
     path("table/<int:pk>/clean/", views.mark_table_clean, name="mark_table_clean"),
     path("item/<int:item_pk>/remove/", views.remove_item_from_order, name="remove_item_from_order"),
     path("item/<int:item_pk>/update/", views.update_item_quantity, name="update_item_quantity"),
+    path("order/<int:pk>/discount/", views.apply_discount, name="apply_discount"),
 ]

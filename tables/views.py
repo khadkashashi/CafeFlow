@@ -6,7 +6,7 @@ from billing.models import Invoice
 from orders.models import Order,OrderItem
 from .models import Table
 from menu.models import FoodItem
-
+from decimal import Decimal, InvalidOperation
 # Create your views here.
 
 @role_required(User.Role.FRONT_DESK, User.Role.MANAGER)
@@ -101,3 +101,23 @@ def update_item_quantity(request, item_pk):
             item.save()
 
     return redirect("tables:table_detail", pk=table_pk)
+
+@role_required(User.Role.WAITER, User.Role.FRONT_DESK, User.Role.MANAGER)
+@require_POST
+def apply_discount(request, pk):
+    order = get_object_or_404(Order, pk=pk)
+
+    if order.status == Order.Status.DRAFT:
+        try:
+            discount = Decimal(request.POST.get("discount", "0"))
+        except InvalidOperation:
+            discount = Decimal("0.00")
+
+        if discount < 0:
+            discount = Decimal("0.00")
+
+        order.discount = discount
+        order.save(update_fields=["discount"])
+        order.recalculate_totals()
+
+    return redirect("tables:table_detail", pk=order.table.pk)
