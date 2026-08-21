@@ -4,6 +4,8 @@ from accounts.decorators import role_required
 from accounts.models import User
 from orders.models import Order
 from .models import Invoice
+from customers.models import Customer
+from django.views.decorators.http import require_POST
 
 # Create your views here.
 @role_required( User.Role.FRONT_DESK, User.Role.MANAGER)
@@ -27,3 +29,17 @@ def order_bill(request, order_pk):
     order = get_object_or_404(Order, pk=order_pk)
     invoice = Invoice.objects.filter(order=order).first()
     return render(request, "billing/order_bill.html", {"order": order, "invoice": invoice})
+
+@role_required(User.Role.FRONT_DESK, User.Role.MANAGER)
+@require_POST
+def link_customer(request, order_pk):
+    order = get_object_or_404(Order, pk=order_pk)
+    phone = request.POST.get("phone", "").strip()
+    name = request.POST.get("name", "").strip()
+    if phone and name:
+        customer, created = Customer.objects.get_or_create(phone=phone, defaults={"name": name})
+        if not created and customer.name != name: # existing customer found by phone but name differs — keep the name on file, don't overwrite silently
+            pass
+        order.customer = customer
+        order.save(update_fields=["customer"])
+    return redirect("billing:order_bill", order_pk=order.pk)

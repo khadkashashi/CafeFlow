@@ -5,9 +5,18 @@
 <h3>Order #{{ order.pk }}</h3>
 
 {% if order.source == "DINE_IN" %}
-<span class="badge bg-secondary">Dine In — {{ order.table|default:"No table" }}</span>
+    {% if order.customer %}
+    <p class="text-muted">Customer: {{ order.customer.name }} ({{ order.customer.phone }}) — {{ order.customer.loyalty_points }} pts</p>
+    {% else %}
+    <form method="post" action="{% url 'billing:link_customer' order.pk %}" class="d-flex gap-2 mb-3" style="max-width: 500px;">
+        {% csrf_token %}
+        <input type="text" name="name" class="form-control" placeholder="Customer name" required>
+        <input type="text" name="phone" class="form-control" placeholder="Phone number" required>
+        <button class="btn btn-outline-secondary">Link Customer</button>
+    </form>
+    {% endif %}
 {% elif order.source == "ONLINE" %}
-<span class="badge bg-info text-dark">Online Order{% if order.customer %} — {{ order.customer.name }} ({{ order.customer.phone|default:"no phone" }}){% endif %}</span>
+<span class="badge bg-info text-dark">Online Order{% if order.customer %} — {{ order.customer.name }}{% endif %}</span>
 {% else %}
 <span class="badge bg-warning text-dark">Pickup{% if order.customer %} — {{ order.customer.name }}{% endif %}</span>
 {% endif %}
