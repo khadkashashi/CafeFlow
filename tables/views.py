@@ -11,17 +11,16 @@ from decimal import Decimal, InvalidOperation
 
 @role_required(User.Role.FRONT_DESK, User.Role.MANAGER)
 def reception_dashboard(request):
-    active_orders = Order.objects.exclude(status__in=[Order.Status.COMPLETED, Order.Status.CANCELLED, Order.Status.DRAFT]).select_related("table").order_by("-created_at")
+    active_orders = Order.objects.filter(table__isnull=True).exclude(status__in=[Order.Status.COMPLETED, Order.Status.CANCELLED, Order.Status.DRAFT]).select_related("customer").order_by("-created_at")
     pending_bills = Invoice.objects.filter(is_paid=False).select_related("order")
     all_tables = Table.objects.all()
-    return render(request,"tables/reception_dashboard.html",
-        {
-            "active_orders": active_orders,
-            "pending_bills": pending_bills,
-            "tables": all_tables,
-        },
-    )
-
+    context={
+        "active_orders": active_orders, 
+        "pending_bills": pending_bills, 
+        "tables": all_tables
+    }
+    return render(request,"tables/reception_dashboard.html",context)
+    
 ACTIVE_STATUSES_EXCLUDE = [Order.Status.COMPLETED, Order.Status.CANCELLED]
 @role_required(User.Role.WAITER, User.Role.FRONT_DESK, User.Role.MANAGER)
 def table_detail(request, pk):
@@ -107,7 +106,6 @@ def update_item_quantity(request, item_pk):
 @require_POST
 def apply_discount(request, pk):
     order = get_object_or_404(Order, pk=pk)
-
     if order.status not in (Order.Status.COMPLETED, Order.Status.CANCELLED):
         try:
             discount = Decimal(request.POST.get("discount", "0"))
@@ -124,3 +122,12 @@ def apply_discount(request, pk):
 def waiter_tables(request):
     tables = Table.objects.all()
     return render(request, "tables/waiter_tables.html", {"tables": tables})
+
+
+@role_required(User.Role.FRONT_DESK, User.Role.MANAGER)
+def table_bill(request, pk):
+    table = get_object_or_404(Table, pk=pk)
+    order = (Order.objects.filter(table=table) .exclude(status__in=[Order.Status.DRAFT, Order.Status.COMPLETED, Order.Status.CANCELLED]) .order_by("-created_at").first())
+    if not order:
+        return redirect("tables:reception_dashboard")
+    return redirect("billing:order_bill", order_pk=order.pk)

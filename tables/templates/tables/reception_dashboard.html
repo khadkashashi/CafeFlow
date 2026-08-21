@@ -8,6 +8,9 @@
 <div class="row">
     {% for table in tables %}
     <div class="col-md-2 mb-3">
+        {% if table.status == 'OCCUPIED' %}
+        <a href="{% url 'tables:table_bill' table.pk %}" class="text-decoration-none">
+        {% endif %}
         <div class="card text-center
             {% if table.status == 'AVAILABLE' %}border-success
             {% elif table.status == 'OCCUPIED' %}border-danger
@@ -23,31 +26,35 @@
                     {{ table.get_status_display }}
                 </span>
                 {% if table.status == 'CLEANING' %}
-                <form method="post" action="{% url 'tables:mark_table_clean' table.pk %}" class="mt-2">
+                <form method="post" action="{% url 'tables:mark_table_clean' table.pk %}" class="mt-2" onclick="event.stopPropagation();">
                     {% csrf_token %}
                     <button class="btn btn-sm btn-outline-secondary">Mark Clean</button>
                 </form>
                 {% endif %}
             </div>
         </div>
+        {% if table.status == 'OCCUPIED' %}
+        </a>
+        {% endif %}
     </div>
     {% endfor %}
 </div>
 
-<h5 class="mt-4">Active Orders — Ready for Billing</h5>
+<h5 class="mt-4">Online &amp; Pickup Orders — Ready for Billing</h5>
 <table class="table bg-white">
-    <thead><tr><th>Order</th><th>Source</th><th>Table</th><th>Status</th><th>Total</th><th></th></tr></thead>
+    <thead><tr><th>Order</th><th>Source</th><th>Customer</th><th>Status</th><th>Total</th><th></th></tr></thead>
     <tbody>
         {% for order in active_orders %}
         <tr>
             <td>#{{ order.pk }}</td>
             <td>{{ order.get_source_display }}</td>
-            <td>{{ order.table|default:"—" }}</td>
+            <td>{{ order.customer.name|default:"—" }} {% if order.customer.phone %}({{ order.customer.phone }}){% endif %}</td>
             <td>{{ order.get_status_display }}</td>
             <td>Rs.{{ order.grand_total }}</td>
-<td><a href="{% url 'billing:order_bill' order.pk %}" class="btn btn-sm btn-outline-dark">View / Bill</a></td>        </tr>
+            <td><a href="{% url 'billing:order_bill' order.pk %}" class="btn btn-sm btn-outline-dark">View / Bill</a></td>
+        </tr>
         {% empty %}
-        <tr><td colspan="6" class="text-muted">No active orders.</td></tr>
+        <tr><td colspan="6" class="text-muted">No online or pickup orders pending.</td></tr>
         {% endfor %}
     </tbody>
 </table>
