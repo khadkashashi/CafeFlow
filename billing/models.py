@@ -15,10 +15,8 @@ class Invoice(models.Model):
 
     class Meta:
         ordering = ["-issued_at"]
-
     def __str__(self):
         return f"Invoice {self.invoice_number} — Order #{self.order_id}"
-
     def save(self, *args, **kwargs):
         if not self.invoice_number:
             self.invoice_number = f"INV-{uuid.uuid4().hex[:8].upper()}"
@@ -38,6 +36,13 @@ class Invoice(models.Model):
            self.order.status = self.order.Status.COMPLETED
            self.order.save(update_fields=["status"])
            if self.order.table:
-            from tables.models import Table
-            self.order.table.status = Table.Status.CLEANING
-            self.order.table.save(update_fields=["status"])
+              from tables.models import Table
+              self.order.table.status = Table.Status.CLEANING
+              self.order.table.save(update_fields=["status"])
+           if self.order.customer:
+              self.order.customer.add_loyalty_points(self.grand_total)
+
+
+    
+        
+        
