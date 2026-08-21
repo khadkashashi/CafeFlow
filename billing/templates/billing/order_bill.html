@@ -7,7 +7,7 @@
 {% if order.source == "DINE_IN" %}
 <span class="badge bg-secondary">Dine In — {{ order.table|default:"No table" }}</span>
 {% elif order.source == "ONLINE" %}
-<span class="badge bg-info text-dark">Online Order{% if order.customer %} — {{ order.customer.name }}{% endif %}</span>
+<span class="badge bg-info text-dark">Online Order{% if order.customer %} — {{ order.customer.name }} ({{ order.customer.phone|default:"no phone" }}){% endif %}</span>
 {% else %}
 <span class="badge bg-warning text-dark">Pickup{% if order.customer %} — {{ order.customer.name }}{% endif %}</span>
 {% endif %}
