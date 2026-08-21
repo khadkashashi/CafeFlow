@@ -65,7 +65,7 @@ MIDDLEWARE = [
 ]
 AUTH_USER_MODEL = "accounts.User"
 ROOT_URLCONF = 'core.urls'
-
+SITE_BASE_URL = "http://127.0.0.1:8000"  
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',

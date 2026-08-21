@@ -1,5 +1,4 @@
 from io import BytesIO
-
 import qrcode
 from django.core.files import File
 from django.db import models
@@ -38,7 +37,10 @@ class Table(models.Model):
             self.generate_qr()
 
     def generate_qr(self):
-        qr = qrcode.make(f"table-{self.table_number}")
+        from django.conf import settings
+        base_url = getattr(settings, "SITE_BASE_URL", "http://127.0.0.1:8000")
+        qr_content = f"{base_url}/table/{self.pk}/menu/"
+        qr = qrcode.make(qr_content)
         buffer = BytesIO()
         qr.save(buffer, format="PNG")
         filename = f"table_{self.table_number}_qr.png"

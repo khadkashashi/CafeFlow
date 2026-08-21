@@ -5,4 +5,5 @@ app_name = "landing"
 urlpatterns = [
     path("", views.home, name="home"),
     path("menu/", views.menu_page, name="menu"),
+    path("table/<int:table_id>/menu/", views.table_menu, name="table_menu"),
 ]
