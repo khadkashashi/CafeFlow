@@ -289,19 +289,20 @@
         </span>
         CafeFlow
     </a>
-    <div class="nav-links">
-        <a href="{% url 'landing:home' %}">Home</a>
-        <a href="{% url 'landing:menu' %}">Menu</a>
-        <a href="{% url 'cart:cart_detail' %}">Cart</a>
-        {% if user.is_authenticated %}
-<form method="post" action="{% url 'logout' %}" style="display:inline;">
-    {% csrf_token %}
-    <button type="submit" class="cta" style="background:none;border:1px solid var(--copper);color:inherit;font:inherit;cursor:pointer;">Log out</button>
-</form>
-{% else %}
-<a href="{% url 'login' %}" class="cta">Log in</a>
-{% endif %}
-    </div>
+<div class="nav-links">
+    <a href="{% url 'landing:home' %}">Home</a>
+    <a href="{% url 'landing:menu' %}">Menu</a>
+    <a href="{% url 'cart:cart_detail' %}">Cart</a>
+    <a href="{% url 'customers:check_points' %}">Loyalty Points</a>
+    {% if user.is_authenticated %}
+    <form method="post" action="{% url 'logout' %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="cta" style="background:none;border:1px solid var(--copper);color:inherit;font:inherit;cursor:pointer;">Log out</button>
+    </form>
+    {% else %}
+    <a href="{% url 'login' %}" class="cta">Log in</a>
+    {% endif %}
+</div>
 </nav>
 
 <section class="hero" style="padding:0;">
@@ -449,10 +450,11 @@
         <p>Open daily, 7:00 – 21:00</p>
     </div>
     <div class="col">
-        <h4>Order</h4>
-        <a href="{% url 'landing:menu' %}">Browse Menu</a>
-        <a href="{% url 'cart:cart_detail' %}">Your Cart</a>
-    </div>
+    <h4>Order</h4>
+    <a href="{% url 'landing:menu' %}">Browse Menu</a>
+    <a href="{% url 'cart:cart_detail' %}">Your Cart</a>
+    <a href="{% url 'customers:check_points' %}">Check Loyalty Points</a>
+</div>
     <div class="col">
         <h4>Staff</h4>
         <a href="{% url 'login' %}">Staff Login</a>
