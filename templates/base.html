@@ -23,8 +23,15 @@
 <a class="nav-link" href="{% url 'reports:dashboard' %}">Reports</a>
 {% endif %}
 </div>
-{% if user.is_authenticated %}
+{% if user.is_authenticated and user.role == "CUSTOMER" %}
 <a class="navbar-text text-light text-decoration-none" href="{% url 'customers:my_account' %}">{{ user.username }} ({{ user.role }})</a>
+{% elif user.is_authenticated %}
+<span class="navbar-text text-light">{{ user.username }} ({{ user.role }})</span>
+{% endif %}
+
+<a class="nav-link" href="{% url 'customers:check_points' %}">Check Points</a>
+
+{% if user.is_authenticated %}
 <form method="post" action="{% url 'logout' %}" class="d-inline ms-2">
     {% csrf_token %}
     <button type="submit" class="btn btn-link nav-link p-0 text-light d-inline">Logout</button>

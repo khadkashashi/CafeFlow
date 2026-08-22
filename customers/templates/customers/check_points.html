@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Check Loyalty Points{% endblock %}
+
+{% block content %}
+<h3>Check Your Loyalty Points</h3>
+<p class="text-muted">Enter the phone number you gave us at the table.</p>
+
+<form method="post" class="d-flex gap-2 mb-4" style="max-width: 400px;">
+    {% csrf_token %}
+    <input type="text" name="phone" class="form-control" placeholder="Phone number" required>
+    <button class="btn btn-primary">Check</button>
+</form>
+
+{% if searched %}
+    {% if customer %}
+    <div class="card p-3" style="max-width: 300px;">
+        <h5>{{ customer.name }}</h5>
+        <p class="mb-0">{{ customer.loyalty_points }} points</p>
+    </div>
+    {% else %}
+    <p class="text-danger">No account found for that phone number.</p>
+    {% endif %}
+{% endif %}
+{% endblock %}
