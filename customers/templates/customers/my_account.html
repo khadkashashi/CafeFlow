@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}My Account{% endblock %}
+
+{% block content %}
+<h3>My Account</h3>
+<p><strong>{{ customer.name }}</strong><br>{{ customer.phone }}<br>{{ customer.email }}</p>
+
+<div class="card p-3 mb-4" style="max-width: 300px;">
+    <h5 class="mb-0">{{ customer.loyalty_points }} pts</h5>
+    <small class="text-muted">Worth up to Rs.{{ points_value }} off your next order</small>
+</div>
+
+<h5>Recent Orders</h5>
+<table class="table bg-white">
+    <thead><tr><th>Order</th><th>Source</th><th>Status</th><th>Total</th></tr></thead>
+    <tbody>
+        {% for order in orders %}
+        <tr>
+            <td><a href="{% url 'orders:order_detail' order.pk %}">#{{ order.pk }}</a></td>
+            <td>{{ order.get_source_display }}</td>
+            <td>{{ order.get_status_display }}</td>
+            <td>Rs.{{ order.grand_total }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="text-muted">No orders yet.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

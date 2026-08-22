@@ -23,7 +23,10 @@
 <a class="nav-link" href="{% url 'reports:dashboard' %}">Reports</a>
 {% endif %}
 </div>
-           {% if user.is_authenticated %}
+{% if user.is_authenticated %}
+<a class="nav-link" href="{% url 'customers:my_account' %}">My Account</a>
+{% endif %}
+{% if user.is_authenticated %}
 <span class="navbar-text text-light">{{ user.username }} ({{ user.role }})</span>
 <form method="post" action="{% url 'logout' %}" class="d-inline ms-2">
     {% csrf_token %}
