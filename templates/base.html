@@ -22,14 +22,10 @@
 {% if user.can_access_reports %}
 <a class="nav-link" href="{% url 'reports:dashboard' %}">Reports</a>
 {% endif %}
-{% if user.can_bill %}
-<a class="nav-link" href="{% url 'reservations:reservation_list' %}">Manage Reservations</a>
-{% endif %}
+
 </div>
 {% if user.is_authenticated and user.role == "CUSTOMER" %}
 <a class="navbar-text text-light text-decoration-none" href="{% url 'customers:my_account' %}">{{ user.username }} ({{ user.role }})</a>
-{% elif user.is_authenticated %}
-<span class="navbar-text text-light">{{ user.username }} ({{ user.role }})</span>
 {% endif %}
 
 <a class="nav-link" href="{% url 'customers:check_points' %}">Check Points</a>

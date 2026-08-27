@@ -4,6 +4,7 @@ from accounts.decorators import role_required
 from accounts.models import User
 from orders.models import Order
 from .models import Customer
+from django.conf import settings
 
 
 @role_required(User.Role.CUSTOMER)
@@ -16,7 +17,6 @@ def my_account(request):
         },
     )
     orders = Order.objects.filter(customer=customer).order_by("-created_at")[:10]
-    from django.conf import settings
     points_value = customer.loyalty_points * settings.LOYALTY_POINT_VALUE
     return render(request, "customers/my_account.html", {"customer": customer, "orders": orders, "points_value": points_value})
 
