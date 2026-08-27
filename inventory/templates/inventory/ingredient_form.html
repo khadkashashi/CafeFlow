@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Ingredient{% endblock %}
+
+{% block content %}
+<h3>{% if form.instance.pk %}Edit{% else %}Add{% endif %} Ingredient</h3>
+<form method="post" style="max-width: 400px;">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn btn-primary">Save</button>
+</form>
+{% endblock %}
