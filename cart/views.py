@@ -43,7 +43,8 @@ def checkout(request):
     )
     table_id = request.session.pop("dine_in_table_id", None)
     table = Table.objects.filter(pk=table_id).first() if table_id else None
-    order = Order.objects.create(customer=customer,         source=Order.Source.DINE_IN if table else Order.Source.ONLINE, status=Order.Status.PENDING)
+    order = Order.objects.create(customer=customer,         
+    source=Order.Source.DINE_IN if table else Order.Source.ONLINE, status=Order.Status.PENDING)
     for item in cart:
         OrderItem.objects.create(order=order, food=item["food"], quantity=item["quantity"])
     order.recalculate_totals()
