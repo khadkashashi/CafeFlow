@@ -8,6 +8,7 @@ from .models import Reservation
 from django.shortcuts import get_object_or_404
 from tables.models import Table
 # Create your views here.
+
 @login_required
 def make_reservation(request):
     if request.method == "POST":
@@ -49,5 +50,7 @@ def confirm_reservation(request, pk):
     table_id = request.POST.get("table_id")
     if table_id:
         reservation.table = Table.objects.filter(pk=table_id).first()
+        reservation.save(update_fields=["table"])
+
     reservation.confirm()
     return redirect("reservations:reservation_list")
