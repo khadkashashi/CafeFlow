@@ -294,6 +294,7 @@
     <a href="{% url 'landing:menu' %}">Menu</a>
     <a href="{% url 'cart:cart_detail' %}">Cart</a>
     <a href="{% url 'customers:check_points' %}">Loyalty Points</a>
+    <a href="{% url 'reservations:make_reservation' %}">Reserve</a>
     {% if user.is_authenticated %}
     <form method="post" action="{% url 'logout' %}" style="display:inline;">
         {% csrf_token %}

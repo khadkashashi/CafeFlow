@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Manage Reservations{% endblock %}
+
+{% block content %}
+<h3>Reservations</h3>
+<table class="table bg-white">
+    <thead><tr><th>Customer</th><th>Date</th><th>Time</th><th>Guests</th><th>Status</th><th>Assign Table & Confirm</th></tr></thead>
+    <tbody>
+        {% for r in reservations %}
+        <tr>
+            <td>{{ r.customer.name }} ({{ r.customer.phone }})</td>
+            <td>{{ r.date }}</td>
+            <td>{{ r.time }}</td>
+            <td>{{ r.guest_count }}</td>
+            <td>{{ r.get_status_display }}</td>
+            <td>
+                {% if r.status == "PENDING" %}
+                <form method="post" action="{% url 'reservations:confirm_reservation' r.pk %}" class="d-flex gap-2">
+                    {% csrf_token %}
+                   <select name="table_id" class="form-select form-select-sm" style="width:120px;">
+                       <option value="">— Table —</option>
+                        {% for t in tables %}
+                       <option value="{{ t.pk }}">Table {{ t.table_number }}</option>
+                        {% endfor %}
+                    </select>
+                    <button class="btn btn-sm btn-success">Confirm</button>
+                </form>
+                {% else %}
+                <span class="text-muted">{{ r.table|default:"—" }}</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-muted">No pending reservations.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
