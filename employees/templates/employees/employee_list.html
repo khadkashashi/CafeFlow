@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Employees{% endblock %}
+
+{% block content %}
+<h3>Employees</h3>
+{% if messages %}{% for m in messages %}<div class="alert alert-info">{{ m }}</div>{% endfor %}{% endif %}
+<a href="{% url 'employees:add_employee' %}" class="btn btn-primary mb-3">Add Employee</a>
+
+<table class="table bg-white">
+    <thead><tr><th>Username</th><th>Role</th><th>Position</th><th>Shift</th><th>Salary</th><th>Active</th><th></th></tr></thead>
+    <tbody>
+        {% for e in employees %}
+        <tr>
+            <td>{{ e.user.username }}</td>
+            <td>{{ e.user.get_role_display }}</td>
+            <td>{{ e.position }}</td>
+            <td>{{ e.get_shift_display }}</td>
+            <td>Rs.{{ e.salary }}</td>
+            <td>{% if e.is_active %}✅{% else %}❌{% endif %}</td>
+            <td>
+                <form method="post" action="{% url 'employees:toggle_active' e.pk %}">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-outline-secondary">{% if e.is_active %}Deactivate{% else %}Activate{% endif %}</button>
+                </form>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-muted">No employees yet.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

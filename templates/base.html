@@ -23,6 +23,9 @@
                 {% if user.can_access_reports %}
                 <a class="nav-link" href="{% url 'reports:dashboard' %}">Reports</a>
                 {% endif %}
+                {% if user.can_manage_staff %}
+                <a class="nav-link" href="{% url 'employees:employee_list' %}">Staff</a>
+                {% endif %}
             </div>
 
             {% if user.is_authenticated and user.role == "CUSTOMER" %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Add Employee{% endblock %}
+
+{% block content %}
+<h3>Add Employee</h3>
+<form method="post" style="max-width: 400px;">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <label class="form-label">Role</label>
+    <select name="role" class="form-select mb-3">
+        {% for value, label in roles %}
+        <option value="{{ value }}">{{ label }}</option>
+        {% endfor %}
+    </select>
+    <button class="btn btn-primary">Create</button>
+</form>
+{% endblock %}

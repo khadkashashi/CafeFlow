@@ -41,3 +41,12 @@ class User(AbstractUser):
     def can_bill(self):
         """Can view billing, apply discounts, generate bills, take payment —> front desk's job."""
         return self.is_superuser or self.role in (self.Role.FRONT_DESK, self.Role.MANAGER)
+
+
+    @property
+    def can_manage_staff(self):
+        return self.is_superuser or self.role == self.Role.MANAGER
+
+    @property
+    def can_manage_inventory(self):
+        return self.is_superuser or self.role == self.Role.MANAGER

@@ -37,6 +37,7 @@ urlpatterns = [
     path("account/", include("customers.urls")),
     path("signup/", account_views.signup, name="signup"),
     path("reservations/", include("reservations.urls")),
+    path("employees/", include("employees.urls")),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
