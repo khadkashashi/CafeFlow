@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Recipe — {{ food.name }}{% endblock %}
+
+{% block content %}
+<h3>Recipe for {{ food.name }}</h3>
+<form method="post">
+    {% csrf_token %}
+    {{ formset.management_form }}
+    <table class="table bg-white">
+        <thead><tr><th>Ingredient</th><th>Quantity Required</th><th>Remove</th></tr></thead>
+        <tbody>
+            {% for f in formset %}
+            <tr>
+                <td>{{ f.ingredient }}</td>
+                <td>{{ f.quantity_required }}</td>
+                <td>{% if f.instance.pk %}{{ f.DELETE }}{% endif %}</td>
+                {{ f.id }}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <button class="btn btn-primary">Save Recipe</button>
+</form>
+{% endblock %}

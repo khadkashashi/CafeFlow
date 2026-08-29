@@ -2,7 +2,9 @@ from django.shortcuts import get_object_or_404, redirect, render
 from accounts.decorators import role_required
 from accounts.models import User
 from .forms import IngredientForm, PurchaseForm
-from .models import Ingredient, Purchase
+from .models import Ingredient
+from menu.models import FoodItem
+from .forms import RecipeFormSet
 #create your views here
 
 @role_required(User.Role.CHEF, User.Role.MANAGER)
@@ -46,3 +48,22 @@ def record_purchase(request):
     else:
         form = PurchaseForm()
     return render(request, "inventory/purchase_form.html", {"form": form})
+
+@role_required(User.Role.MANAGER)
+def manage_recipe(request, food_id):
+    food = get_object_or_404(FoodItem, pk=food_id)
+    if request.method == "POST":
+        formset = RecipeFormSet(request.POST, instance=food)
+        if formset.is_valid():
+            formset.save()
+            return redirect("inventory:recipe_menu")
+    else:
+        formset = RecipeFormSet(instance=food)
+    return render(request, "inventory/manage_recipe.html", {"food": food, "formset": formset})
+
+
+@role_required(User.Role.MANAGER)
+def recipe_menu(request):
+    """Shows every food item and whether it has a recipe defined yet."""
+    foods = FoodItem.objects.prefetch_related("recipe_items").all()
+    return render(request, "inventory/recipe_menu.html", {"foods": foods})
