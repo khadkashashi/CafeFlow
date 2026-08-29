@@ -127,13 +127,28 @@
         </span>
         CafeFlow
     </a>
+    <div class="nav-links">
+        <a href="{% url 'landing:home' %}">Home</a>
+        <a href="{% url 'landing:menu' %}">Menu</a>
+        <a href="{% url 'cart:cart_detail' %}">Cart</a>
+        <a href="{% url 'customers:check_points' %}">Loyalty Points</a>
+        {% if user.is_authenticated %}
+        <form method="post" action="{% url 'logout' %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="cta" style="background:none;border:1px solid var(--copper);color:inherit;font:inherit;cursor:pointer;">Log out</button>
+        </form>
+        {% else %}
+        <a href="{% url 'login' %}" class="cta">Log in</a>
+        {% endif %}
+    </div>
 </nav>
+
 <header class="menu-header">
-    <svg class="doodle left" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+    <svg class="doodle left" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
         <path d="M20 40 Q20 30 30 30 L60 30 Q70 30 70 40 L70 60 Q70 80 45 80 Q20 80 20 60 Z"/>
         <path d="M70 40 Q85 40 85 52 Q85 64 70 62"/>
     </svg>
-    <svg class="doodle right" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+    <svg class="doodle right" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
         <path d="M30 20 Q25 30 30 40" /><path d="M45 15 Q40 28 45 40" /><path d="M60 20 Q55 30 60 40" />
         <path d="M25 45 L75 45 L70 85 Q70 90 65 90 L35 90 Q30 90 30 85 Z" />
     </svg>

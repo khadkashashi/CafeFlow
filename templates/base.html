@@ -3,65 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}CafeFlow{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,450;0,9..144,600;1,9..144,450&family=Work+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
-    <nav class="navbar navbar-expand navbar-dark bg-dark mb-4">
-        <div class="container">
-            <span class="navbar-brand">☕ CafeFlow</span>
-            <div class="navbar-nav">
-                {% if user.can_manage_orders %}
-                <a class="nav-link" href="{% url 'tables:waiter_tables' %}">Tables</a>
-                {% endif %}
-                {% if user.can_access_kitchen %}
-                <a class="nav-link" href="{% url 'kitchen:dashboard' %}">Kitchen</a>
-                {% endif %}
-                {% if user.can_bill %}
-                <a class="nav-link" href="{% url 'tables:reception_dashboard' %}">Reception</a>
-                <a class="nav-link" href="{% url 'reservations:reservation_list' %}">Manage Reservations</a>
-                {% endif %}
-                {% if user.can_access_reports %}
-                <a class="nav-link" href="{% url 'reports:dashboard' %}">Reports</a>
-                {% endif %}
-                {% if user.can_manage_staff %}
-                <a class="nav-link" href="{% url 'employees:employee_list' %}">Staff</a>
-                {% endif %}
-                {% if user.can_view_inventory %}
-                <a class="nav-link" href="{% url 'inventory:ingredient_list' %}">Inventory</a>
-                {% endif %}
-                {% if user.can_manage_orders %}
-                <a class="nav-link" href="{% url 'tables:merge_tables' %}">Merge Tables</a>
-                {% endif %}
-                {% if user.is_staff_member %}
-                <a class="nav-link" href="{% url 'employees:my_shift' %}">My Shift</a>
-                {% endif %}
-                {% if user.can_manage_staff %}
-                <a class="nav-link" href="{% url 'employees:all_shifts' %}">All Shifts</a>
-                {% endif %}
-            </div>
+    <style>
+        :root {
+            --espresso: #16110F;
+            --espresso-light: #221B18;
+            --espresso-lighter: #2E251F;
+            --parchment: #EFE7DA;
+            --copper: #C17F3E;
+            --copper-bright: #D99A5C;
+            --burgundy: #5C2A2E;
+            --smoke: #8C8378;
+        }
 
+        body {
+            background: var(--espresso) !important;
+            color: var(--parchment);
+            font-family: 'Work Sans', sans-serif;
+        }
+
+        a { color: var(--copper-bright); }
+
+        .awning {
+            height: 26px;
+            background-image: radial-gradient(circle at 10px 0, transparent 10px, var(--copper) 10.5px);
+            background-size: 20px 20px;
+            background-position: top;
+        }
+
+        .cf-nav {
+            background: var(--espresso-light);
+            padding: 1rem 5vw;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+        .cf-brand {
+            display: flex; align-items: center; gap: 0.5rem;
+            font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 600;
+            color: var(--parchment); text-decoration: none;
+        }
+        .steam-mark { width: 18px; height: 24px; }
+        .steam-mark svg { width: 100%; height: 100%; }
+        .steam-mark path { fill: none; stroke: var(--copper-bright); stroke-width: 1.4; stroke-linecap: round; }
+
+        .cf-links { display: flex; align-items: center; gap: 1.1rem; flex-wrap: wrap; font-size: 0.82rem; }
+        .cf-links a, .cf-links .cf-link-btn {
+            color: var(--smoke); text-decoration: none; background: none; border: none;
+            font-family: 'Work Sans', sans-serif; font-size: 0.82rem; padding: 0; cursor: pointer;
+        }
+        .cf-links a:hover, .cf-links .cf-link-btn:hover { color: var(--copper-bright); }
+        .cf-user { color: var(--parchment); font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; }
+
+        /* Bootstrap component overrides so every existing dashboard template stays dark-themed automatically */
+        .table { color: var(--parchment); }
+        .table > :not(caption) > * > * { background: var(--espresso-light); color: var(--parchment); border-color: rgba(140,131,120,0.2); }
+        .bg-white { background: var(--espresso-light) !important; color: var(--parchment); }
+        .card { background: var(--espresso-light); color: var(--parchment); border-color: rgba(140,131,120,0.2); }
+        .form-control, .form-select {
+            background: var(--espresso-lighter) !important; color: var(--parchment) !important;
+            border-color: rgba(140,131,120,0.3);
+        }
+        .form-control::placeholder { color: var(--smoke); }
+        .form-control:focus, .form-select:focus { border-color: var(--copper); box-shadow: 0 0 0 0.2rem rgba(193,127,62,0.25); }
+        label, .form-label { color: var(--parchment); }
+
+        .btn-primary { background: var(--copper); border-color: var(--copper); }
+        .btn-primary:hover { background: var(--copper-bright); border-color: var(--copper-bright); }
+        .btn-outline-primary { color: var(--copper-bright); border-color: var(--copper); }
+        .btn-outline-primary:hover { background: var(--copper); color: var(--espresso); }
+        .btn-outline-secondary, .btn-outline-dark { color: var(--parchment); border-color: rgba(140,131,120,0.4); }
+        .btn-outline-secondary:hover, .btn-outline-dark:hover { background: var(--espresso-lighter); color: var(--parchment); }
+        .btn-success { background: var(--burgundy); border-color: var(--burgundy); opacity: 0.95; }
+        .btn-success:hover { opacity: 1; }
+
+        h1, h2, h3, h4, h5, h6 { font-family: 'Fraunces', serif; color: var(--parchment); }
+        .text-muted { color: var(--smoke) !important; }
+    </style>
+</head>
+<body>
+    <div class="awning"></div>
+
+    <nav class="cf-nav">
+        <a href="{% url 'landing:home' %}" class="cf-brand">
+            <span class="steam-mark">
+                <svg viewBox="0 0 22 30" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 26c0-6 4-6 4-12S6 8 6 2" />
+                    <path d="M14 26c0-6 4-6 4-12S14 8 14 2" />
+                </svg>
+            </span>
+            CafeFlow
+        </a>
+
+        <div class="cf-links">
+            {% if user.can_manage_orders %}
+            <a href="{% url 'tables:waiter_tables' %}">Tables</a>
+            <a href="{% url 'tables:merge_tables' %}">Merge Tables</a>
+            {% endif %}
+            {% if user.can_access_kitchen %}
+            <a href="{% url 'kitchen:dashboard' %}">Kitchen</a>
+            {% endif %}
+            {% if user.can_bill %}
+            <a href="{% url 'tables:reception_dashboard' %}">Reception</a>
+            <a href="{% url 'reservations:reservation_list' %}">Manage Reservations</a>
+            {% endif %}
+            {% if user.can_view_inventory %}
+            <a href="{% url 'inventory:ingredient_list' %}">Inventory</a>
+            {% endif %}
+            {% if user.can_manage_staff %}
+            <a href="{% url 'employees:employee_list' %}">Staff</a>
+            <a href="{% url 'employees:all_shifts' %}">All Shifts</a>
+            {% endif %}
+            {% if user.can_access_reports %}
+            <a href="{% url 'reports:dashboard' %}">Reports</a>
+            {% endif %}
+            {% if user.is_staff_member %}
+            <a href="{% url 'employees:my_shift' %}">My Shift</a>
+            {% endif %}
             {% if user.is_authenticated and user.role == "CUSTOMER" %}
-            <a class="navbar-text text-light text-decoration-none" href="{% url 'customers:my_account' %}">{{ user.username }} ({{ user.role }})</a>
-            {% elif user.is_authenticated %}
-            <span class="navbar-text text-light">{{ user.username }} ({{ user.role }})</span>
+            <a href="{% url 'reservations:my_reservations' %}">Reservations</a>
             {% endif %}
 
-            <a class="nav-link" href="{% url 'customers:check_points' %}">Check Points</a>
-
             {% if user.is_authenticated and user.role == "CUSTOMER" %}
-            <a class="nav-link" href="{% url 'reservations:my_reservations' %}">Reservations</a>
+            <a href="{% url 'customers:my_account' %}" class="cf-user">{{ user.username }} ({{ user.role }})</a>
+            {% elif user.is_authenticated %}
+            <span class="cf-user">{{ user.username }} ({{ user.role }})</span>
             {% endif %}
 
             {% if user.is_authenticated %}
-            <form method="post" action="{% url 'logout' %}" class="d-inline ms-2">
+            <form method="post" action="{% url 'logout' %}" style="display:inline;">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-link nav-link p-0 text-light d-inline">Logout</button>
+                <button type="submit" class="cf-link-btn">Logout</button>
             </form>
             {% else %}
-            <a class="nav-link" href="{% url 'login' %}">Login</a>
+            <a href="{% url 'login' %}">Login</a>
             {% endif %}
         </div>
     </nav>
+
     <div class="container">
         {% block content %}{% endblock %}
     </div>
