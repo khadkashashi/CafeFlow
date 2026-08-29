@@ -7,6 +7,8 @@ from orders.models import Order,OrderItem
 from .models import Table
 from menu.models import FoodItem
 from decimal import Decimal, InvalidOperation
+from inventory.services import adjust_inventory
+
 # Create your views here.
 
 @role_required(User.Role.FRONT_DESK, User.Role.MANAGER)
@@ -45,7 +47,7 @@ def start_order(request, pk):
     return redirect("tables:table_detail", pk=table.pk)
 
 
-@role_required(User.Role.WAITER, User.Role.FRONT_DESK, User.Role.MANAGER)
+@role_required(User.Role.WAITER, User.Role.MANAGER)
 @require_POST
 def add_item_to_order(request, pk):
     order = get_object_or_404(Order, pk=pk)
@@ -55,6 +57,7 @@ def add_item_to_order(request, pk):
     if not created:
         item.quantity += quantity
         item.save()
+        adjust_inventory(food, quantity)  # the signal only fired for the original creation, not this top-up
     return redirect("tables:table_detail", pk=order.table.pk)
 
 
@@ -74,32 +77,37 @@ def mark_table_clean(request, pk):
     return redirect("tables:reception_dashboard")
 
 
-@role_required(User.Role.WAITER, User.Role.FRONT_DESK, User.Role.MANAGER)
+@role_required(User.Role.WAITER, User.Role.MANAGER)
 @require_POST
 def remove_item_from_order(request, item_pk):
     item = get_object_or_404(OrderItem, pk=item_pk)
     table_pk = item.order.table.pk
     if item.order.status == Order.Status.DRAFT:
+        adjust_inventory(item.food, -item.quantity)
         item.delete()
         item.order.recalculate_totals()
-
     return redirect("tables:table_detail", pk=table_pk)
 
-
-@role_required(User.Role.WAITER, User.Role.FRONT_DESK, User.Role.MANAGER)
+@role_required(User.Role.WAITER, User.Role.MANAGER)
 @require_POST
 def update_item_quantity(request, item_pk):
     item = get_object_or_404(OrderItem, pk=item_pk)
     table_pk = item.order.table.pk
     if item.order.status == Order.Status.DRAFT:
-        quantity = int(request.POST.get("quantity", item.quantity))
-        if quantity < 1:
+        old_quantity = item.quantity
+        try:
+            new_quantity = int(request.POST.get("quantity", old_quantity))
+        except ValueError:
+            new_quantity = old_quantity
+
+        if new_quantity < 1:
+            adjust_inventory(item.food, -old_quantity)
             item.delete()
             item.order.recalculate_totals()
         else:
-            item.quantity = quantity
+            adjust_inventory(item.food, new_quantity - old_quantity)
+            item.quantity = new_quantity
             item.save()
-
     return redirect("tables:table_detail", pk=table_pk)
 
 @role_required(User.Role.FRONT_DESK, User.Role.MANAGER)
