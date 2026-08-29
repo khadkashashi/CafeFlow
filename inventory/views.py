@@ -50,20 +50,29 @@ def record_purchase(request):
     return render(request, "inventory/purchase_form.html", {"form": form})
 
 @role_required(User.Role.MANAGER)
+def recipe_menu(request):
+    query = request.GET.get("q", "").strip()
+    foods = FoodItem.objects.prefetch_related("recipe_items").all()
+    if query:
+        foods = foods.filter(name__icontains=query)
+    return render(request, "inventory/recipe_menu.html", {"foods": foods, "query": query})
+
+@role_required(User.Role.MANAGER)
 def manage_recipe(request, food_id):
     food = get_object_or_404(FoodItem, pk=food_id)
     if request.method == "POST":
-        formset = RecipeFormSet(request.POST, instance=food)
-        if formset.is_valid():
-            formset.save()
-            return redirect("inventory:recipe_menu")
+        if "add_ingredient" in request.POST:
+            # Quick-create a brand-new ingredient without leaving this page
+            new_form = IngredientForm(request.POST)
+            if new_form.is_valid():
+                new_form.save()
+            formset = RecipeFormSet(instance=food)  # reload so the new ingredient shows in the dropdown
+        else:
+            formset = RecipeFormSet(request.POST, instance=food)
+            if formset.is_valid():
+                formset.save()
+                return redirect("inventory:recipe_menu")
     else:
         formset = RecipeFormSet(instance=food)
-    return render(request, "inventory/manage_recipe.html", {"food": food, "formset": formset})
-
-
-@role_required(User.Role.MANAGER)
-def recipe_menu(request):
-    """Shows every food item and whether it has a recipe defined yet."""
-    foods = FoodItem.objects.prefetch_related("recipe_items").all()
-    return render(request, "inventory/recipe_menu.html", {"foods": foods})
+    new_ingredient_form = IngredientForm()
+    return render(request,"inventory/manage_recipe.html",{"food": food, "formset": formset, "new_ingredient_form": new_ingredient_form})
