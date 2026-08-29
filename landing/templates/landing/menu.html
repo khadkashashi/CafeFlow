@@ -1,39 +1,180 @@
-{% extends "base.html" %}
-{% block title %}Menu{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Menu — CafeFlow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,450;0,9..144,600;0,9..144,700;1,9..144,450&family=Work+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --espresso: #16110F;
+        --espresso-light: #221B18;
+        --parchment: #EFE7DA;
+        --copper: #C17F3E;
+        --copper-bright: #D99A5C;
+        --burgundy: #5C2A2E;
+        --smoke: #8C8378;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+        background: var(--espresso);
+        color: var(--parchment);
+        font-family: 'Work Sans', sans-serif;
+        line-height: 1.6;
+    }
+    a { color: inherit; text-decoration: none; }
+    h1, h2, h3 { font-family: 'Fraunces', serif; line-height: 1.05; }
 
-{% block content %}
-<h3>Our Menu</h3>
+    .eyebrow {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 0.72rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--copper-bright);
+    }
 
-{% for category in categories %}
-<h5 class="mt-4">{{ category.name }}</h5>
-<div class="row">
-    {% for food in category.items.all %}
-    {% if food.is_available %}
-    <div class="col-md-4 mb-3">
-        <div class="card h-100">
-            {% if food.image %}
-            <img src="{{ food.image.url }}" class="card-img-top" alt="{{ food.name }}" style="height: 180px; object-fit: cover;">
-            {% else %}
-            <div class="bg-secondary bg-opacity-25 d-flex align-items-center justify-content-center" style="height: 180px;">
-                <span class="text-muted">No image</span>
-            </div>
-            {% endif %}
-            <div class="card-body">
-                <h6>{{ food.name }}</h6>
-                <p class="small text-muted">{{ food.description }}</p>
-                <p><strong>Rs.{{ food.price }}</strong></p>
-                <form method="post" action="{% url 'cart:cart_add' food.id %}" class="d-flex gap-2">
-                    {% csrf_token %}
-                    <input type="number" name="quantity" value="1" min="1" class="form-control form-control-sm" style="width: 70px;">
-                    <button class="btn btn-sm btn-primary">Add to Cart</button>
-                </form>
-            </div>
+    .nav {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 1.5rem 5vw;
+    }
+    .brand { display: flex; align-items: center; gap: 0.6rem; font-family: 'Fraunces', serif; font-size: 1.3rem; font-weight: 600; }
+    .steam-mark { width: 20px; height: 27px; }
+    .steam-mark svg { width: 100%; height: 100%; }
+    .steam-mark path { fill: none; stroke: var(--copper-bright); stroke-width: 1.4; stroke-linecap: round; }
+    .nav-links { display: flex; align-items: center; gap: 2rem; font-size: 0.85rem; }
+    .nav-links a { opacity: 0.78; }
+    .nav-links a:hover { opacity: 1; }
+    .nav-links .cta { border: 1px solid var(--copper); padding: 0.45rem 1rem; border-radius: 2px; opacity: 1; }
+    .nav-links .cta:hover { background: var(--copper); color: var(--espresso); }
+
+    .awning {
+        height: 34px;
+        background-image: radial-gradient(circle at 10px 0, transparent 12px, var(--copper) 12.5px);
+        background-size: 20px 20px;
+        background-position: top;
+        opacity: 0.9;
+    }
+
+    .menu-header { text-align: center; padding: 4rem 5vw 3rem; position: relative; overflow: hidden; }
+    .menu-header h1 { font-size: clamp(2.4rem, 5vw, 3.6rem); margin-top: 0.6rem; }
+    .doodle { position: absolute; opacity: 0.08; stroke: var(--parchment); fill: none; stroke-width: 1.4; pointer-events: none; }
+    .doodle.left { top: 10px; left: 2vw; width: 120px; }
+    .doodle.right { top: 20px; right: 3vw; width: 110px; }
+
+    .menu-body { padding: 0 5vw 6rem; max-width: 1200px; margin: 0 auto; }
+    .cat-section { margin-bottom: 4rem; }
+    .cat-title {
+        display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;
+    }
+    .cat-title h2 { font-size: 1.5rem; white-space: nowrap; }
+    .cat-title .rule { flex: 1; height: 1px; background: rgba(140,131,120,0.25); }
+
+    .item-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+        gap: 1.75rem;
+    }
+    .item-card { text-align: center; }
+    .photo-wrap { position: relative; margin-bottom: 0.9rem; }
+    .photo-wrap img, .photo-wrap .fallback {
+        width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 50%;
+        border: 3px solid var(--espresso-light);
+        background: var(--espresso-light);
+    }
+    .price-badge {
+        position: absolute; top: -6px; right: 6px;
+        background: var(--copper); color: var(--espresso);
+        font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 0.78rem;
+        width: 48px; height: 48px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        border: 3px solid var(--espresso);
+        text-align: center; line-height: 1.05;
+    }
+    .item-name { font-size: 0.95rem; font-weight: 500; margin-bottom: 0.8rem; }
+    .add-btn {
+        background: none; border: 1px solid var(--copper); color: var(--copper-bright);
+        border-radius: 20px; padding: 0.35rem 1.1rem; font-family: 'IBM Plex Mono', monospace;
+        font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer;
+    }
+    .add-btn:hover { background: var(--copper); color: var(--espresso); }
+    .qty-input {
+        width: 42px; background: var(--espresso-light); border: 1px solid rgba(140,131,120,0.3);
+        color: var(--parchment); border-radius: 4px; text-align: center; font-size: 0.8rem;
+        padding: 0.3rem; margin-right: 0.4rem;
+    }
+
+    .empty-note { color: var(--smoke); text-align: center; padding: 3rem 0; }
+
+    @media (max-width: 600px) {
+        .nav-links { gap: 1rem; font-size: 0.75rem; }
+        .item-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1.2rem; }
+    }
+</style>
+</head>
+<body>
+
+<div class="awning"></div>
+
+<nav class="nav">
+    <a href="{% url 'landing:home' %}" class="brand">
+        <span class="steam-mark">
+            <svg viewBox="0 0 22 30" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6 26c0-6 4-6 4-12S6 8 6 2" />
+                <path d="M14 26c0-6 4-6 4-12S14 8 14 2" />
+            </svg>
+        </span>
+        CafeFlow
+    </a>
+</nav>
+<header class="menu-header">
+    <svg class="doodle left" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 40 Q20 30 30 30 L60 30 Q70 30 70 40 L70 60 Q70 80 45 80 Q20 80 20 60 Z"/>
+        <path d="M70 40 Q85 40 85 52 Q85 64 70 62"/>
+    </svg>
+    <svg class="doodle right" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+        <path d="M30 20 Q25 30 30 40" /><path d="M45 15 Q40 28 45 40" /><path d="M60 20 Q55 30 60 40" />
+        <path d="M25 45 L75 45 L70 85 Q70 90 65 90 L35 90 Q30 90 30 85 Z" />
+    </svg>
+    <span class="eyebrow">Fresh Today</span>
+    <h1>Our Menu</h1>
+</header>
+
+<div class="menu-body">
+    {% for category in categories %}
+    <div class="cat-section">
+        <div class="cat-title">
+            <h2>{{ category.name }}</h2>
+            <div class="rule"></div>
+        </div>
+        <div class="item-grid">
+            {% for food in category.items.all %}
+                {% if food.is_available %}
+                <div class="item-card">
+                    <div class="photo-wrap">
+                        {% if food.image %}
+                        <img src="{{ food.image.url }}" alt="{{ food.name }}">
+                        {% else %}
+                        <div class="fallback"></div>
+                        {% endif %}
+                        <span class="price-badge">Rs.{{ food.price|floatformat:0 }}</span>
+                    </div>
+                    <p class="item-name">{{ food.name }}</p>
+                    <form method="post" action="{% url 'cart:cart_add' food.id %}">
+                        {% csrf_token %}
+                        <input type="number" name="quantity" value="1" min="1" class="qty-input">
+                        <button type="submit" class="add-btn">Add</button>
+                    </form>
+                </div>
+                {% endif %}
+            {% endfor %}
         </div>
     </div>
-    {% endif %}
+    {% empty %}
+    <p class="empty-note">The menu's warming up — check back shortly.</p>
     {% endfor %}
 </div>
-{% empty %}
-<p class="text-muted">No categories yet.</p>
-{% endfor %}
-{% endblock %}
+
+</body>
+</html>
