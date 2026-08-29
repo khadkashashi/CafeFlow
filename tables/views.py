@@ -25,18 +25,15 @@ def reception_dashboard(request):
     return render(request,"tables/reception_dashboard.html",context)
     
 ACTIVE_STATUSES_EXCLUDE = [Order.Status.COMPLETED, Order.Status.CANCELLED]
+from menu.models import Category, FoodItem
+
 @role_required(User.Role.WAITER, User.Role.FRONT_DESK, User.Role.MANAGER)
 def table_detail(request, pk):
     table = get_object_or_404(Table, pk=pk)
-    order = (Order.objects.filter(table=table).exclude(status__in=ACTIVE_STATUSES_EXCLUDE).order_by("-created_at").first())
+    order = ( Order.objects.filter(table=table).exclude(status__in=ACTIVE_STATUSES_EXCLUDE).order_by("-created_at").first())
     food_items = FoodItem.objects.filter(is_available=True).select_related("category")
-    context={
-        "table": table, 
-        "order": order, 
-        "food_items": food_items
-    }
-    return render(request,"tables/table_detail.html",context)
-
+    categories = Category.objects.all()
+    return render(request,"tables/table_detail.html", {"table": table, "order": order, "food_items": food_items, "categories": categories})
 
 @role_required(User.Role.WAITER, User.Role.FRONT_DESK, User.Role.MANAGER)
 @require_POST

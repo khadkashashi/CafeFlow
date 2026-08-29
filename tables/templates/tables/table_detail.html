@@ -2,95 +2,291 @@
 {% block title %}Table {{ table.table_number }}{% endblock %}
 
 {% block content %}
-<h3>Table {{ table.table_number }} — {{ table.get_status_display }}</h3>
+<style>
+    :root {
+        --espresso-900: #1B1512;
+        --espresso-800: #241D19;
+        --espresso-700: #2E251F;
+        --card-cream: #F6EEE1;
+        --text-cream: #F3EAE0;
+        --text-muted: #B8A99A;
+        --accent-gold: #C99A4E;
+        --accent-gold-dark: #A97F3C;
+        --text-dark: #2B211A;
+        --danger: #B5533C;
+    }
 
-{% if not order %}
-    {% if user.can_manage_orders %}
-    <form method="post" action="{% url 'tables:start_order' table.pk %}">
-        {% csrf_token %}
-        <button class="btn btn-success mt-3">Start Order</button>
-    </form>
-    {% else %}
-    <p class="text-muted">No active order for this table.</p>
-    {% endif %}
+    .pos-shell {
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        gap: 0;
+        background: var(--espresso-800);
+        color: var(--text-cream);
+        font-family: 'Inter', 'Work Sans', sans-serif;
+        border-radius: 10px;
+        overflow: hidden;
+        min-height: 640px;
+        margin: -1.5rem -12px;
+    }
 
-{% else %}
-<p class="text-muted">Order #{{ order.pk }} — {{ order.get_status_display }}</p>
+    .pos-main { padding: 1.75rem; }
+    .pos-topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    .pos-topbar h4 { margin: 0; font-weight: 600; }
+    .table-status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.78rem;
+        padding: 0.3rem 0.7rem;
+        border-radius: 20px;
+        background: var(--espresso-700);
+        color: var(--text-muted);
+    }
+    .table-status-pill .dot {
+        width: 7px; height: 7px; border-radius: 50%;
+        background: var(--accent-gold);
+        animation: pulse 1.8s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+    @media (prefers-reduced-motion: reduce) { .table-status-pill .dot { animation: none; } }
 
-<table class="table bg-white">
-    <thead><tr><th>Item</th><th>Qty</th><th>Line Total</th>{% if user.can_manage_orders and order.status == "DRAFT" %}<th></th>{% endif %}</tr></thead>
-    <tbody>
-        {% for item in order.items.all %}
-        <tr>
-            <td>{{ item.food.name }}</td>
-            <td style="width: 140px;">
-                {% if user.can_manage_orders and order.status == "DRAFT" %}
-                <form method="post" action="{% url 'tables:update_item_quantity' item.pk %}" class="d-flex gap-1">
-                    {% csrf_token %}
-                    <input type="number" name="quantity" value="{{ item.quantity }}" min="0" class="form-control form-control-sm" style="width: 65px;">
-                    <button class="btn btn-sm btn-outline-secondary">Update</button>
-                </form>
+    .pos-search {
+        background: var(--espresso-700);
+        border: 1px solid rgba(255,255,255,0.06);
+        color: var(--text-cream);
+        border-radius: 8px;
+        padding: 0.55rem 0.9rem;
+        width: 260px;
+        font-size: 0.9rem;
+    }
+    .pos-search::placeholder { color: var(--text-muted); }
+    .pos-search:focus { outline: 2px solid var(--accent-gold); border-color: transparent; }
+
+    .cat-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .cat-tab {
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.1);
+        color: var(--text-muted);
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.82rem;
+        cursor: pointer;
+    }
+    .cat-tab.active, .cat-tab:hover { background: var(--accent-gold); color: var(--espresso-900); border-color: var(--accent-gold); }
+
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+    .product-card {
+        background: var(--card-cream);
+        color: var(--text-dark);
+        border-radius: 10px;
+        overflow: hidden;
+        border: none;
+        text-align: left;
+        cursor: pointer;
+        transition: transform 0.15s;
+    }
+    .product-card:hover { transform: translateY(-2px); }
+    .product-card .thumb {
+        width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block;
+        background: #e4d9c8;
+    }
+    .product-card .pinfo { padding: 0.65rem 0.75rem; }
+    .product-card .pname { font-size: 0.85rem; font-weight: 600; margin: 0 0 0.2rem; line-height: 1.2; }
+    .product-card .pprice { font-size: 0.8rem; color: var(--accent-gold-dark); font-weight: 600; }
+
+    .order-panel {
+        background: var(--espresso-900);
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+    }
+    .order-panel h5 { font-weight: 600; margin-bottom: 0.2rem; }
+    .order-sub { color: var(--text-muted); font-size: 0.8rem; margin-bottom: 1rem; }
+    .order-items { flex: 1; overflow-y: auto; max-height: 360px; margin-bottom: 1rem; }
+    .order-line {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 0.6rem 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+        font-size: 0.85rem;
+    }
+    .order-line .qty-badge {
+        background: var(--espresso-700); color: var(--text-cream);
+        border-radius: 6px; padding: 0.1rem 0.5rem; font-size: 0.75rem; margin-right: 0.5rem;
+    }
+    .order-line form { display: inline-flex; gap: 0.3rem; align-items: center; }
+    .mini-btn {
+        background: none; border: 1px solid rgba(255,255,255,0.15); color: var(--text-muted);
+        border-radius: 4px; font-size: 0.7rem; padding: 0.1rem 0.4rem; cursor: pointer;
+    }
+    .mini-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+    .totals-block { border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 0.75rem; font-size: 0.85rem; }
+    .totals-block .row-line { display: flex; justify-content: space-between; margin-bottom: 0.35rem; color: var(--text-muted); }
+    .totals-block .grand { color: var(--text-cream); font-weight: 700; font-size: 1.1rem; }
+
+    .btn-gold {
+        background: var(--accent-gold); color: var(--espresso-900); border: none;
+        font-weight: 600; padding: 0.75rem; border-radius: 8px; width: 100%; margin-top: 1rem;
+        font-size: 0.95rem;
+    }
+    .btn-gold:hover { background: var(--accent-gold-dark); }
+    .btn-outline-cream {
+        background: transparent; color: var(--text-cream); border: 1px solid rgba(255,255,255,0.2);
+        padding: 0.6rem; border-radius: 8px; width: 100%; margin-top: 0.6rem; font-size: 0.85rem;
+    }
+    .discount-row { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
+    .discount-row input { flex: 1; background: var(--espresso-700); border: none; color: var(--text-cream); border-radius: 6px; padding: 0.4rem 0.6rem; font-size: 0.8rem; }
+
+    @media (max-width: 900px) {
+        .pos-shell { grid-template-columns: 1fr; }
+        .order-panel { order: -1; }
+    }
+</style>
+
+<div class="pos-shell">
+    <div class="pos-main">
+        <div class="pos-topbar">
+            <h4>Table {{ table.table_number }}</h4>
+            <span class="table-status-pill"><span class="dot"></span>{{ table.get_status_display }}</span>
+            <input type="text" class="pos-search" id="foodSearch" placeholder="Search food...">
+        </div>
+
+        {% if order and user.can_manage_orders and order.status == "DRAFT" %}
+        <div class="cat-tabs" id="catTabs">
+            <button class="cat-tab active" data-cat="all">All</button>
+            {% for cat in categories %}
+            <button class="cat-tab" data-cat="{{ cat.id }}">{{ cat.name }}</button>
+            {% endfor %}
+        </div>
+
+        <div class="product-grid" id="productGrid">
+            {% for food in food_items %}
+            <form method="post" action="{% url 'tables:add_item_to_order' order.pk %}" class="product-card" data-cat="{{ food.category_id }}" data-name="{{ food.name|lower }}">
+                {% csrf_token %}
+                <input type="hidden" name="food_id" value="{{ food.id }}">
+                <input type="hidden" name="quantity" value="1">
+                {% if food.image %}
+                <img src="{{ food.image.url }}" class="thumb" alt="{{ food.name }}">
                 {% else %}
-                {{ item.quantity }}
+                <div class="thumb"></div>
                 {% endif %}
-            </td>
-            <td>Rs.{{ item.line_total }}</td>
-            {% if user.can_manage_orders and order.status == "DRAFT" %}
-            <td>
-                <form method="post" action="{% url 'tables:remove_item_from_order' item.pk %}">
-                    {% csrf_token %}
-                    <button class="btn btn-sm btn-outline-danger">Remove</button>
-                </form>
-            </td>
-            {% endif %}
-        </tr>
-        {% empty %}
-        <tr><td colspan="4" class="text-muted">No items yet.</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-<p><strong>Subtotal:</strong> Rs.{{ order.subtotal }} &nbsp; <strong>Discount:</strong> Rs.{{ order.discount }} &nbsp; <strong>Tax:</strong> Rs.{{ order.tax }} &nbsp; <strong>Grand Total:</strong> Rs.{{ order.grand_total }}</p>
-
-{% if user.can_bill and order.status != "COMPLETED" and order.status != "CANCELLED" %}
-<form method="post" action="{% url 'tables:apply_discount' order.pk %}" class="d-flex gap-2 mb-4" style="max-width: 300px;">
-    {% csrf_token %}
-    <input type="number" step="0.01" name="discount" value="{{ order.discount }}" class="form-control" placeholder="Discount Rs.">
-    <button class="btn btn-outline-primary">Apply</button>
-</form>
-{% endif %}
-
-<div class="row mt-4">
-    {% if user.can_manage_orders %}
-    <div class="col-md-6">
-        <h5>Add Item</h5>
-        <form method="post" action="{% url 'tables:add_item_to_order' order.pk %}" class="d-flex gap-2">
-            {% csrf_token %}
-            <select name="food_id" class="form-select">
-                {% for food in food_items %}
-                <option value="{{ food.id }}">{{ food.name }} — Rs.{{ food.price }}</option>
-                {% endfor %}
-            </select>
-            <input type="number" name="quantity" value="1" min="1" class="form-control" style="width:80px;">
-            <button class="btn btn-primary">Add</button>
-        </form>
-    </div>
-    {% endif %}
-
-    <div class="col-md-6 d-flex align-items-end justify-content-end gap-2">
-        {% if user.can_manage_orders and order.status == "DRAFT" %}
-        <form method="post" action="{% url 'tables:send_order_to_kitchen' order.pk %}">
-            {% csrf_token %}
-            <button class="btn btn-warning btn-lg">Send to Kitchen</button>
-        </form>
-        {% elif order.status != "DRAFT" %}
-        <span class="badge bg-info text-dark align-self-center">Sent to kitchen</span>
+                <div class="pinfo">
+                    <p class="pname">{{ food.name }}</p>
+                    <span class="pprice">Rs.{{ food.price }}</span>
+                </div>
+                <button type="submit" style="display:none;"></button>
+            </form>
+            {% endfor %}
+        </div>
+        {% elif not order %}
+        <p style="color:var(--text-muted);">Start an order to browse the menu.</p>
+        {% else %}
+        <p style="color:var(--text-muted);">Order already sent to the kitchen — menu editing is closed for this table.</p>
         {% endif %}
+    </div>
 
-        {% if user.can_bill and order.status != "DRAFT" and order.status != "COMPLETED" %}
-        <a href="{% url 'billing:generate_bill' order.pk %}" class="btn btn-outline-dark btn-lg">Generate Bill</a>
+    <div class="order-panel">
+        {% if not order %}
+            <h5>No Active Order</h5>
+            <p class="order-sub">This table is free to start a new order.</p>
+            {% if user.can_manage_orders %}
+            <form method="post" action="{% url 'tables:start_order' table.pk %}">
+                {% csrf_token %}
+                <button class="btn-gold">Start Order</button>
+            </form>
+            {% endif %}
+        {% else %}
+            <h5>Order #{{ order.pk }}</h5>
+            <p class="order-sub">{{ order.get_status_display }} · {{ order.get_source_display }}</p>
+
+            <div class="order-items">
+                {% for item in order.items.all %}
+                <div class="order-line">
+                    <div>
+                        <span class="qty-badge">{{ item.quantity }}x</span>{{ item.food.name }}
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span>Rs.{{ item.line_total }}</span>
+                        {% if user.can_manage_orders and order.status == "DRAFT" %}
+                        <form method="post" action="{% url 'tables:remove_item_from_order' item.pk %}">
+                            {% csrf_token %}
+                            <button class="mini-btn">✕</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <p style="color:var(--text-muted);" class="small">No items yet — tap a menu card to add one.</p>
+                {% endfor %}
+            </div>
+
+            {% if user.can_bill and order.status != "COMPLETED" and order.status != "CANCELLED" %}
+            <form method="post" action="{% url 'tables:apply_discount' order.pk %}" class="discount-row">
+                {% csrf_token %}
+                <input type="number" step="0.01" name="discount" value="{{ order.discount }}" placeholder="Discount Rs.">
+                <button class="mini-btn" style="padding:0.4rem 0.7rem;">Apply</button>
+            </form>
+            {% endif %}
+
+            <div class="totals-block">
+                <div class="row-line"><span>Subtotal</span><span>Rs.{{ order.subtotal }}</span></div>
+                <div class="row-line"><span>Discount</span><span>-Rs.{{ order.discount }}</span></div>
+                <div class="row-line"><span>Tax</span><span>Rs.{{ order.tax }}</span></div>
+                <div class="row-line grand"><span>Total</span><span>Rs.{{ order.grand_total }}</span></div>
+            </div>
+
+            {% if user.can_manage_orders and order.status == "DRAFT" %}
+            <form method="post" action="{% url 'tables:send_order_to_kitchen' order.pk %}">
+                {% csrf_token %}
+                <button class="btn-gold">Send to Kitchen</button>
+            </form>
+            {% endif %}
+
+            {% if user.can_bill and order.status != "DRAFT" and order.status != "COMPLETED" %}
+            <a href="{% url 'billing:generate_bill' order.pk %}" class="btn-outline-cream d-block text-center text-decoration-none">Generate Bill</a>
+            {% endif %}
         {% endif %}
     </div>
 </div>
-{% endif %}
+
+<script>
+    const tabs = document.querySelectorAll('.cat-tab');
+    const cards = document.querySelectorAll('.product-card');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            const cat = tab.dataset.cat;
+            cards.forEach(card => {
+                card.style.display = (cat === 'all' || card.dataset.cat === cat) ? '' : 'none';
+            });
+        });
+    });
+
+    const searchInput = document.getElementById('foodSearch');
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            const q = searchInput.value.toLowerCase();
+            cards.forEach(card => {
+                card.style.display = card.dataset.name.includes(q) ? '' : 'none';
+            });
+        });
+    }
+
+    document.querySelectorAll('.product-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+            if (e.target.tagName !== 'INPUT') card.querySelector('button[type="submit"]').click();
+        });
+    });
+</script>
 {% endblock %}
