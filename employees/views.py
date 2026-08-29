@@ -3,7 +3,10 @@ from django.shortcuts import get_object_or_404, redirect, render
 from accounts.decorators import role_required
 from accounts.models import User
 from .forms import EmployeeForm
-from .models import Employee
+from .models import Employee,ShiftLog
+from django.utils import timezone
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
 
 
 @role_required(User.Role.MANAGER)
@@ -42,3 +45,42 @@ def toggle_active(request, pk):
     employee.is_active = not employee.is_active
     employee.save(update_fields=["is_active"])
     return redirect("employees:employee_list")
+
+
+@login_required
+def my_shift(request):
+    employee = Employee.objects.filter(user=request.user).first()
+    if not employee:
+        return redirect("landing:home")  # not a staff member, nothing to show
+
+    today_log = ShiftLog.objects.filter(employee=employee, date=timezone.now().date()).first()
+    logs = ShiftLog.objects.filter(employee=employee).order_by("-date")[:10]
+    return render(request, "employees/my_shift.html", {"employee": employee, "today_log": today_log, "logs": logs})
+
+
+@login_required
+@require_POST
+def clock_in(request):
+    employee = get_object_or_404(Employee, user=request.user)
+    log, _ = ShiftLog.objects.get_or_create(employee=employee, date=timezone.now().date())
+    if not log.clock_in:
+        log.clock_in = timezone.now()
+        log.save(update_fields=["clock_in"])
+    return redirect("employees:my_shift")
+
+
+@login_required
+@require_POST
+def clock_out(request):
+    employee = get_object_or_404(Employee, user=request.user)
+    log = ShiftLog.objects.filter(employee=employee, date=timezone.now().date()).first()
+    if log and log.clock_in and not log.clock_out:
+        log.clock_out = timezone.now()
+        log.save(update_fields=["clock_out"])
+    return redirect("employees:my_shift")
+
+
+@role_required(User.Role.MANAGER)
+def all_shifts(request):
+    logs = ShiftLog.objects.select_related("employee__user").order_by("-date")[:100]
+    return render(request, "employees/all_shifts.html", {"logs": logs})

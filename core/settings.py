@@ -29,6 +29,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 LOYALTY_POINT_VALUE = Decimal("1.00")
+TIME_ZONE = "Asia/Kathmandu"
+USE_TZ = True
 
 # Application definition
 

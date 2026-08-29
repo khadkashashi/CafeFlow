@@ -32,6 +32,12 @@
                 {% if user.can_manage_orders %}
                 <a class="nav-link" href="{% url 'tables:merge_tables' %}">Merge Tables</a>
                 {% endif %}
+                {% if user.is_staff_member %}
+                <a class="nav-link" href="{% url 'employees:my_shift' %}">My Shift</a>
+                {% endif %}
+                {% if user.can_manage_staff %}
+                <a class="nav-link" href="{% url 'employees:all_shifts' %}">All Shifts</a>
+                {% endif %}
             </div>
 
             {% if user.is_authenticated and user.role == "CUSTOMER" %}

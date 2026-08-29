@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 
 
 # Create your models here.
@@ -24,3 +25,22 @@ class Employee(models.Model):
 
     def __str__(self):
         return f"{self.user.get_full_name() or self.user.username} — {self.position}"
+
+
+class ShiftLog(models.Model):
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name="shift_logs")
+    date = models.DateField(default=timezone.now)
+    clock_in = models.DateTimeField(null=True, blank=True)
+    clock_out = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-date"]
+
+    def __str__(self):
+        return f"{self.employee} — {self.date}"
+
+    @property
+    def hours_worked(self):
+        if self.clock_in and self.clock_out:
+            return round((self.clock_out - self.clock_in).total_seconds() / 3600, 2)
+        return None

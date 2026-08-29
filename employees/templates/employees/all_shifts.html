@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}All Shifts{% endblock %}
+
+{% block content %}
+<h3>All Staff Shifts</h3>
+<table class="table bg-white">
+    <thead><tr><th>Employee</th><th>Date</th><th>In</th><th>Out</th><th>Hours</th></tr></thead>
+    <tbody>
+        {% for log in logs %}
+        <tr><td>{{ log.employee.user.username }}</td><td>{{ log.date }}</td><td>{{ log.clock_in|default:"—" }}</td><td>{{ log.clock_out|default:"—" }}</td><td>{{ log.hours_worked|default:"—" }}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
