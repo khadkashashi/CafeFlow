@@ -3,12 +3,15 @@ from django.db import models
 
 
 class Customer(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL,on_delete=models.SET_NULL,null=True,blank=True,related_name="customer_profile",help_text="Linked account if the customer registered online")
+    user = models.OneToOneField(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,null=True,blank=True,related_name="customer_profile")
     name = models.CharField(max_length=150)
-    phone = models.CharField(max_length=20, blank=True)
+    phone = models.CharField(max_length=20, blank=True, null=True, unique=True)
     email = models.EmailField(blank=True)
     loyalty_points = models.PositiveIntegerField(default=0)
 
+    def __str__(self):
+        return f"{self.name} ({self.phone or 'No Phone'})"
+    
     class Meta:
         ordering = ["name"]
 

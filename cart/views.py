@@ -34,12 +34,13 @@ def checkout(request):
     cart = Cart(request)
     if len(cart) == 0:
         return redirect("cart:cart_detail")
-    customer, _ = Customer.objects.get_or_create(user=request.user,
-        defaults={
-            "name": request.user.get_full_name() or request.user.username,
-            "phone": request.user.phone,
-            "email": request.user.email,
-        },
+    customer = Customer.objects.filter(user=request.user).first()
+    if not customer:
+       customer = Customer.objects.create(
+         user=request.user,
+         name=request.user.get_full_name() or request.user.username,
+         phone=request.user.phone,
+         email=request.user.email,
     )
     table_id = request.session.pop("dine_in_table_id", None)
     table = Table.objects.filter(pk=table_id).first() if table_id else None

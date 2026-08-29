@@ -37,9 +37,9 @@ def link_customer(request, order_pk):
     phone = request.POST.get("phone", "").strip()
     name = request.POST.get("name", "").strip()
     if phone and name:
-        customer, created = Customer.objects.get_or_create(phone=phone, defaults={"name": name})
-        if not created and customer.name != name: # existing customer found by phone but name differs — keep the name on file, don't overwrite silently
-            pass
+        customer = Customer.objects.filter(phone=phone).order_by("id").first()
+        if not customer:
+            customer = Customer.objects.create(phone=phone, name=name)
         order.customer = customer
         order.save(update_fields=["customer"])
     return redirect("billing:order_bill", order_pk=order.pk)
