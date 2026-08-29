@@ -3,10 +3,15 @@ from menu.models import Category, FoodItem
 from landing.models import Review
 from tables.models import Table
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
+from orders.models import Order
+
+
 # Create your views here.
 def home(request):
     featured = FoodItem.objects.filter(is_available=True).select_related("category")[:3]
-    reviews = Review.objects.select_related("customer").order_by("created_at")[:4]
+    reviews = Review.objects.select_related("customer").order_by("-created_at")[:4]
     context = {
         "reviews": reviews,
         "featured": featured
@@ -27,3 +32,20 @@ def table_menu(request, table_id):
     categories = Category.objects.prefetch_related("items").all()
     request.session["dine_in_table_id"] = table.id
     return render(request, "landing/menu.html", {"categories": categories, "table": table})
+
+@login_required
+def leave_review(request, order_pk):
+    order = get_object_or_404(Order, pk=order_pk)
+    customer = getattr(order, "customer", None)
+    is_owner = customer and customer.user_id == request.user.id
+    if not is_owner or order.status != Order.Status.COMPLETED:
+        return redirect("orders:order_detail", pk=order.pk)
+    if hasattr(order, "review"):
+        return redirect("orders:order_detail", pk=order.pk)
+    if request.method == "POST":
+        rating = request.POST.get("rating")
+        comment = request.POST.get("comment", "").strip()
+        if rating:
+            Review.objects.create(customer=customer, order=order, rating=int(rating), comment=comment)
+            return redirect("orders:order_detail", pk=order.pk)
+    return render(request, "landing/leave_review.html", {"order": order})

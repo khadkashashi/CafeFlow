@@ -19,9 +19,11 @@
         </tr>
         {% endfor %}
     </tbody>
-</table>
-
 <p><strong>Subtotal:</strong> Rs.{{ order.subtotal }}</p>
 <p><strong>Tax:</strong> Rs.{{ order.tax }}</p>
 <p><strong>Grand Total:</strong> Rs.{{ order.grand_total }}</p>
+</table>
+{% if order.status == "COMPLETED" and user.is_authenticated and order.customer.user == user and not order.review %}
+<a href="{% url 'landing:leave_review' order.pk %}" class="btn btn-outline-primary mt-3">Leave a Review</a>
+{% endif %}
 {% endblock %}

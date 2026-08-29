@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Leave a Review{% endblock %}
+
+{% block content %}
+<h3>Review Order #{{ order.pk }}</h3>
+
+<style>
+    .star-rating { display: flex; flex-direction: row-reverse; justify-content: flex-end; gap: 0.2rem; font-size: 2rem; margin-bottom: 1rem; }
+    .star-rating input { display: none; }
+    .star-rating label { color: rgba(140,131,120,0.4); cursor: pointer; }
+    .star-rating input:checked ~ label,
+    .star-rating label:hover,
+    .star-rating label:hover ~ label { color: var(--copper-bright, #D99A5C); }
+</style>
+
+<form method="post" style="max-width: 500px;">
+    {% csrf_token %}
+    <div class="star-rating">
+        {% for i in "54321" %}
+        <input type="radio" name="rating" id="star_{{ i }}" value="{{ i }}" required>
+        <label for="star_{{ i }}">★</label>
+        {% endfor %}
+    </div>
+    <textarea name="comment" class="form-control mb-3" rows="3" placeholder="How was your order?"></textarea>
+    <button class="btn btn-primary">Submit Review</button>
+</form>
+{% endblock %}

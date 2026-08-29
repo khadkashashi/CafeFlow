@@ -361,77 +361,25 @@
         <p>Every order — whether you're at a table or ordering ahead online — goes through the same kitchen, at the same pace, with the same care.</p>
     </div>
 </section>
-<div class="reviews-grid">
-
-    {% for review in reviews %}
-
-        <div class="review-card">
-
-            <div class="review-avatar">
-
-                {% if review.customer.profile_picture %}
-
-                    <img
-                        src="{{ review.customer.profile_picture.url }}"
-                        alt="{{ review.customer }}"
-                    >
-
-                {% else %}
-
-                    <div class="default-avatar">
-                        {{ review.customer.username|first|upper }}
-                    </div>
-
-                {% endif %}
-
+{% if reviews %}
+<section>
+    <div class="section-head">
+        <h2>What People Say</h2>
+        <p>A few words from customers who've been in.</p>
+    </div>
+    <div class="row">
+        {% for r in reviews %}
+        <div class="col-md-4 mb-4">
+            <div style="border-left: 2px solid var(--copper); padding-left: 1.2rem;">
+                <p style="color: var(--copper-bright); margin-bottom: 0.4rem;">{% for i in "12345" %}{% if forloop.counter <= r.rating %}★{% else %}☆{% endif %}{% endfor %}</p>
+                {% if r.comment %}<p style="color: var(--parchment); font-style: italic;">"{{ r.comment }}"</p>{% endif %}
+                <span class="eyebrow">{{ r.customer.name }}</span>
             </div>
-
-
-            <div class="review-stars">
-
-                {% for i in "12345" %}
-
-                    {% if forloop.counter <= review.rating %}
-                        ★
-                    {% else %}
-                        ☆
-                    {% endif %}
-
-                {% endfor %}
-
-            </div>
-
-
-            <p class="review-comment">
-
-                "{{ review.comment }}"
-
-            </p>
-
-
-            <h3 class="review-name">
-
-                {{ review.customer.get_full_name }}
-
-            </h3>
-
-
-            <span class="review-role">
-
-                Verified Customer
-
-            </span>
-
         </div>
-
-    {% empty %}
-
-        <p>
-            Be the first to leave us a review.
-        </p>
-
-    {% endfor %}
-
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
 </div>
 <footer>
     <div class="col">
