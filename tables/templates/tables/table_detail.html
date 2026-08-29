@@ -146,6 +146,7 @@
     }
     .discount-row { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
     .discount-row input { flex: 1; background: var(--espresso-700); border: none; color: var(--text-cream); border-radius: 6px; padding: 0.4rem 0.6rem; font-size: 0.8rem; }
+    .info-note { color: var(--text-muted); font-size: 0.85rem; }
 
     @media (max-width: 900px) {
         .pos-shell { grid-template-columns: 1fr; }
@@ -161,37 +162,39 @@
             <input type="text" class="pos-search" id="foodSearch" placeholder="Search food...">
         </div>
 
-        {% if order and user.can_manage_orders and order.status == "DRAFT" %}
-        <div class="cat-tabs" id="catTabs">
-            <button class="cat-tab active" data-cat="all">All</button>
-            {% for cat in categories %}
-            <button class="cat-tab" data-cat="{{ cat.id }}">{{ cat.name }}</button>
-            {% endfor %}
-        </div>
+        {% if user.can_manage_orders %}
+            {% if order %}
+            <div class="cat-tabs" id="catTabs">
+                <button class="cat-tab active" data-cat="all">All</button>
+                {% for cat in categories %}
+                <button class="cat-tab" data-cat="{{ cat.id }}">{{ cat.name }}</button>
+                {% endfor %}
+            </div>
 
-        <div class="product-grid" id="productGrid">
-            {% for food in food_items %}
-            <form method="post" action="{% url 'tables:add_item_to_order' order.pk %}" class="product-card" data-cat="{{ food.category_id }}" data-name="{{ food.name|lower }}">
-                {% csrf_token %}
-                <input type="hidden" name="food_id" value="{{ food.id }}">
-                <input type="hidden" name="quantity" value="1">
-                {% if food.image %}
-                <img src="{{ food.image.url }}" class="thumb" alt="{{ food.name }}">
-                {% else %}
-                <div class="thumb"></div>
-                {% endif %}
-                <div class="pinfo">
-                    <p class="pname">{{ food.name }}</p>
-                    <span class="pprice">Rs.{{ food.price }}</span>
-                </div>
-                <button type="submit" style="display:none;"></button>
-            </form>
-            {% endfor %}
-        </div>
-        {% elif not order %}
-        <p style="color:var(--text-muted);">Start an order to browse the menu.</p>
+            <div class="product-grid" id="productGrid">
+                {% for food in food_items %}
+                <form method="post" action="{% url 'tables:add_item_to_order' order.pk %}" class="product-card" data-cat="{{ food.category_id }}" data-name="{{ food.name|lower }}">
+                    {% csrf_token %}
+                    <input type="hidden" name="food_id" value="{{ food.id }}">
+                    <input type="hidden" name="quantity" value="1">
+                    {% if food.image %}
+                    <img src="{{ food.image.url }}" class="thumb" alt="{{ food.name }}">
+                    {% else %}
+                    <div class="thumb"></div>
+                    {% endif %}
+                    <div class="pinfo">
+                        <p class="pname">{{ food.name }}</p>
+                        <span class="pprice">Rs.{{ food.price }}</span>
+                    </div>
+                    <button type="submit" style="display:none;"></button>
+                </form>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="info-note">Start an order to browse the menu.</p>
+            {% endif %}
         {% else %}
-        <p style="color:var(--text-muted);">Order already sent to the kitchen — menu editing is closed for this table.</p>
+        <p class="info-note">You don't have access to modify this order's items.</p>
         {% endif %}
     </div>
 
@@ -250,6 +253,8 @@
                 {% csrf_token %}
                 <button class="btn-gold">Send to Kitchen</button>
             </form>
+            {% elif order.status != "DRAFT" %}
+            <p class="info-note mt-3">Sent to kitchen — new items added above go straight through.</p>
             {% endif %}
 
             {% if user.can_bill and order.status != "DRAFT" and order.status != "COMPLETED" %}
