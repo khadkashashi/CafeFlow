@@ -8,6 +8,7 @@ from .models import Table
 from menu.models import FoodItem
 from decimal import Decimal, InvalidOperation
 from inventory.services import adjust_inventory
+from django.contrib import messages
 
 # Create your views here.
 
@@ -139,3 +140,63 @@ def table_bill(request, pk):
     if not order:
         return redirect("tables:reception_dashboard")
     return redirect("billing:order_bill", order_pk=order.pk)
+
+
+def get_active_order_for_table(table, include_draft=True):
+    statuses_to_exclude = [Order.Status.COMPLETED, Order.Status.CANCELLED]
+    if not include_draft:
+        statuses_to_exclude.append(Order.Status.DRAFT)
+    return Order.objects.filter(table=table).exclude(status__in=statuses_to_exclude).order_by("-created_at").first()
+
+
+@role_required(User.Role.WAITER, User.Role.FRONT_DESK, User.Role.MANAGER)
+def transfer_order(request, pk):
+    table = get_object_or_404(Table, pk=pk)
+    order = get_active_order_for_table(table)
+    if not order:
+        return redirect("tables:table_detail", pk=table.pk)
+
+    available_tables = Table.objects.filter(status=Table.Status.AVAILABLE).exclude(pk=table.pk)
+
+    if request.method == "POST":
+        new_table = get_object_or_404(Table, pk=request.POST.get("new_table_id"), status=Table.Status.AVAILABLE)
+        order.table = new_table
+        order.save(update_fields=["table"])
+        new_table.mark_occupied()
+        table.mark_available()
+        return redirect("tables:table_detail", pk=new_table.pk)
+
+    return render(request, "tables/transfer_order.html", {"table": table, "order": order, "available_tables": available_tables})
+
+
+@role_required(User.Role.WAITER, User.Role.FRONT_DESK, User.Role.MANAGER)
+def merge_tables(request):
+    occupied_tables = Table.objects.filter(status=Table.Status.OCCUPIED)
+
+    if request.method == "POST":
+        source_table = get_object_or_404(Table, pk=request.POST.get("source_table_id"))
+        target_table = get_object_or_404(Table, pk=request.POST.get("target_table_id"))
+
+        if source_table.pk == target_table.pk:
+            messages.error(request, "Pick two different tables to merge.")
+            return redirect("tables:merge_tables")
+
+        source_order = get_active_order_for_table(source_table)
+        target_order = get_active_order_for_table(target_table)
+
+        if not source_order or not target_order or source_order.status != Order.Status.DRAFT:
+            messages.error(request, "Both tables need an active order, and the source order must not be sent to kitchen yet.")
+            return redirect("tables:merge_tables")
+
+        for item in source_order.items.all():
+            item.order = target_order
+            item.save()
+
+        source_order.status = Order.Status.CANCELLED
+        source_order.save(update_fields=["status"])
+        target_order.recalculate_totals()
+        source_table.mark_available()
+
+        return redirect("tables:table_detail", pk=target_table.pk)
+
+    return render(request, "tables/merge_tables.html", {"tables": occupied_tables})

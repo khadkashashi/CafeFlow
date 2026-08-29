@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Transfer Order{% endblock %}
+
+{% block content %}
+<h3>Transfer Order #{{ order.pk }} from Table {{ table.table_number }}</h3>
+<form method="post" style="max-width:300px;">
+    {% csrf_token %}
+    <select name="new_table_id" class="form-select mb-3">
+        {% for t in available_tables %}
+        <option value="{{ t.pk }}">Table {{ t.table_number }}</option>
+        {% endfor %}
+    </select>
+    <button class="btn btn-primary">Transfer</button>
+</form>
+{% endblock %}
