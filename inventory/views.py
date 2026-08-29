@@ -1,8 +1,8 @@
 from django.shortcuts import get_object_or_404, redirect, render
 from accounts.decorators import role_required
 from accounts.models import User
-from .forms import IngredientForm, PurchaseForm
-from .models import Ingredient
+from .forms import IngredientForm, PurchaseForm,SupplierForm
+from .models import Ingredient, Purchase, Supplier
 from menu.models import FoodItem
 from .forms import RecipeFormSet
 #create your views here
@@ -76,3 +76,39 @@ def manage_recipe(request, food_id):
         formset = RecipeFormSet(instance=food)
     new_ingredient_form = IngredientForm()
     return render(request,"inventory/manage_recipe.html",{"food": food, "formset": formset, "new_ingredient_form": new_ingredient_form})
+
+@role_required(User.Role.MANAGER)
+def supplier_list(request):
+    suppliers = Supplier.objects.all()
+    return render(request, "inventory/supplier_list.html", {"suppliers": suppliers})
+
+
+@role_required(User.Role.MANAGER)
+def add_supplier(request):
+    if request.method == "POST":
+        form = SupplierForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("inventory:supplier_list")
+    else:
+        form = SupplierForm()
+    return render(request, "inventory/supplier_form.html", {"form": form})
+
+
+@role_required(User.Role.MANAGER)
+def edit_supplier(request, pk):
+    supplier = get_object_or_404(Supplier, pk=pk)
+    if request.method == "POST":
+        form = SupplierForm(request.POST, instance=supplier)
+        if form.is_valid():
+            form.save()
+            return redirect("inventory:supplier_list")
+    else:
+        form = SupplierForm(instance=supplier)
+    return render(request, "inventory/supplier_form.html", {"form": form})
+
+
+@role_required(User.Role.MANAGER)
+def purchase_history(request):
+    purchases = Purchase.objects.select_related("ingredient", "supplier").order_by("-date")
+    return render(request, "inventory/purchase_history.html", {"purchases": purchases})

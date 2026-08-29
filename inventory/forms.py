@@ -1,5 +1,5 @@
 from django import forms
-from .models import Ingredient, Purchase
+from .models import Ingredient, Purchase, Supplier
 from django.forms import inlineformset_factory
 from menu.models import FoodItem
 from .models import Recipe
@@ -15,3 +15,9 @@ class PurchaseForm(forms.ModelForm):
     class Meta:
         model = Purchase
         fields = ["ingredient", "supplier", "quantity", "price"]
+
+
+class SupplierForm(forms.ModelForm):
+    class Meta:
+        model = Supplier
+        fields = ["name", "phone", "email", "address"]

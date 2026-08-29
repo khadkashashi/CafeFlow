@@ -5,9 +5,14 @@
 <h3>Inventory</h3>
 
 {% if can_edit %}
-<div class="mb-3">
+<div class="mb-3 d-flex gap-2">
+    {% if can_edit %}
     <a href="{% url 'inventory:add_ingredient' %}" class="btn btn-primary">Add Ingredient</a>
     <a href="{% url 'inventory:record_purchase' %}" class="btn btn-outline-primary">Record Purchase</a>
+    <a href="{% url 'inventory:purchase_history' %}" class="btn btn-outline-secondary">Purchase History</a>
+    <a href="{% url 'inventory:supplier_list' %}" class="btn btn-outline-secondary">Suppliers</a>
+    <a href="{% url 'inventory:recipe_menu' %}" class="btn btn-outline-secondary">Recipes</a>
+    {% endif %}
 </div>
 {% endif %}
 
