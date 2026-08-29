@@ -50,3 +50,7 @@ class User(AbstractUser):
     @property
     def can_manage_inventory(self):
         return self.is_superuser or self.role == self.Role.MANAGER
+
+    @property
+    def can_view_inventory(self):
+        return self.is_superuser or self.role in (self.Role.CHEF, self.Role.MANAGER)

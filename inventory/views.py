@@ -5,10 +5,11 @@ from .forms import IngredientForm, PurchaseForm
 from .models import Ingredient, Purchase
 #create your views here
 
-@role_required(User.Role.MANAGER)
+@role_required(User.Role.CHEF, User.Role.MANAGER)
 def ingredient_list(request):
     ingredients = Ingredient.objects.select_related("supplier").all()
-    return render(request, "inventory/ingredient_list.html", {"ingredients": ingredients})
+    can_edit = request.user.can_manage_inventory
+    return render(request, "inventory/ingredient_list.html", {"ingredients": ingredients, "can_edit": can_edit})
 
 @role_required(User.Role.MANAGER)
 def add_ingredient(request):

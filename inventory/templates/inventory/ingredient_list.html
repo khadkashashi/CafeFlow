@@ -3,13 +3,16 @@
 
 {% block content %}
 <h3>Inventory</h3>
+
+{% if can_edit %}
 <div class="mb-3">
     <a href="{% url 'inventory:add_ingredient' %}" class="btn btn-primary">Add Ingredient</a>
     <a href="{% url 'inventory:record_purchase' %}" class="btn btn-outline-primary">Record Purchase</a>
 </div>
+{% endif %}
 
 <table class="table bg-white">
-    <thead><tr><th>Name</th><th>Quantity</th><th>Min Stock</th><th>Supplier</th><th>Cost</th><th>Status</th><th></th></tr></thead>
+    <thead><tr><th>Name</th><th>Quantity</th><th>Min Stock</th><th>Supplier</th><th>Cost</th><th>Status</th>{% if can_edit %}<th></th>{% endif %}</tr></thead>
     <tbody>
         {% for i in ingredients %}
         <tr class="{% if i.is_low_stock %}table-danger{% endif %}">
@@ -19,7 +22,9 @@
             <td>{{ i.supplier|default:"—" }}</td>
             <td>Rs.{{ i.cost }}</td>
             <td>{% if i.is_low_stock %}⚠️ Low{% else %}OK{% endif %}</td>
+            {% if can_edit %}
             <td><a href="{% url 'inventory:edit_ingredient' i.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a></td>
+            {% endif %}
         </tr>
         {% empty %}
         <tr><td colspan="7" class="text-muted">No ingredients yet.</td></tr>

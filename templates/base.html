@@ -29,6 +29,9 @@
                 {% if user.can_manage_inventory %}
                 <a class="nav-link" href="{% url 'inventory:ingredient_list' %}">Inventory</a>
                 {% endif %}
+                {% if user.can_view_inventory %}
+                <a class="nav-link" href="{% url 'inventory:ingredient_list' %}">Inventory</a>
+                {% endif %}
             </div>
 
             {% if user.is_authenticated and user.role == "CUSTOMER" %}
