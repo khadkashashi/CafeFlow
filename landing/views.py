@@ -6,6 +6,8 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from orders.models import Order
+from customers.models import Customer
+from .models import Review
 
 
 # Create your views here.
@@ -49,3 +51,18 @@ def leave_review(request, order_pk):
             Review.objects.create(customer=customer, order=order, rating=int(rating), comment=comment)
             return redirect("orders:order_detail", pk=order.pk)
     return render(request, "landing/leave_review.html", {"order": order})
+
+
+def public_review(request):
+    submitted = False
+    if request.method == "POST":
+        phone = request.POST.get("phone", "").strip()
+        name = request.POST.get("name", "").strip()
+        rating = request.POST.get("rating")
+        comment = request.POST.get("comment", "").strip()
+        if phone and rating:
+            customer, _ = Customer.objects.get_or_create(phone=phone, defaults={"name": name or "Guest"})
+            Review.objects.create(customer=customer, rating=int(rating), comment=comment)
+            submitted = True
+
+    return render(request, "landing/public_review.html", {"submitted": submitted})

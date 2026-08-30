@@ -131,10 +131,15 @@
             {% endif %}
 
             {% if user.is_authenticated and user.role == "CUSTOMER" %}
-            <a href="{% url 'customers:my_account' %}" class="cf-user">{{ user.username }} ({{ user.role }})</a>
-            {% elif user.is_authenticated %}
-            <span class="cf-user">{{ user.username }} ({{ user.role }})</span>
-            {% endif %}
+            <a href="{% url 'customers:my_account' %}" class="cf-user d-flex align-items-center gap-2">
+            {% if user.profile_picture %}
+           <img src="{{ user.profile_picture.url }}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;">
+           {% endif %}
+           {{ user.username }} ({{ user.role }})
+           </a>
+           {% elif user.is_authenticated %}
+           <span class="cf-user">{{ user.username }} ({{ user.role }})</span>
+           {% endif %}
 
             {% if user.is_authenticated %}
             <form method="post" action="{% url 'logout' %}" style="display:inline;">
@@ -144,6 +149,7 @@
             {% else %}
             <a href="{% url 'login' %}">Login</a>
             {% endif %}
+            <a href="{% url 'landing:public_review' %}">Leave a Review</a>
         </div>
     </nav>
 

@@ -11,6 +11,7 @@ class User(AbstractUser):
         CUSTOMER = "CUSTOMER", "Customer"
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.CUSTOMER)
     phone = models.CharField(max_length=20, blank=True)
+    email = models.EmailField(unique=True, blank=True, null=True)
     profile_picture = models.ImageField(upload_to="profiles/", blank=True, null=True)
 
     def __str__(self):
