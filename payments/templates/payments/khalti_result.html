@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Payment {{ payment.get_status_display }}</h3>
+{% if payment.status == "SUCCESS" %}
+<p>Your payment was successful — order #{{ order.pk }} is being prepared.</p>
+<a href="{% url 'orders:track_order' order.pk %}" class="btn btn-primary">Track Order</a>
+{% else %}
+<p>Payment failed or was cancelled. Please try again or choose Cash on Delivery.</p>
+<a href="{% url 'orders:order_detail' order.pk %}" class="btn btn-outline-primary">Back to Order</a>
+{% endif %}
+{% endblock %}

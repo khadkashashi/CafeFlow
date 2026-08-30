@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block content %}
+<script>window.location.href = "{{ payment_url }}";</script>
+<p>Redirecting to Khalti...</p>
+<a href="{{ payment_url }}">Click here if not redirected</a>
+{% endblock %}

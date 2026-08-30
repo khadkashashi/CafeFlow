@@ -6,7 +6,9 @@ from django.views.decorators.http import require_POST
 from billing.models import Invoice
 from .models import Payment
 from orders.models import Order
-from .khalti import initiate_khalti_payment, verify_khalti_payment
+from .khalti import get_payment_url, lookup_khalti_api
+from django.contrib import messages
+from django.urls import reverse
 
 
 
@@ -71,34 +73,61 @@ def redeem_points(request, invoice_pk):
 
     return redirect("payments:payment_screen", invoice_pk=invoice.pk)
 
+def _initiate_khalti_payment(request, order):
+    payment_url_data = get_payment_url(
+        url=request.build_absolute_uri(reverse("payments:khalti_callback", args=[order.pk])),
+        website_url=request.build_absolute_uri("/"),
+        amount=int(order.grand_total * 100),  # Khalti wants paisa, not rupees
+        purchase_order_id=order.pk,
+        purchase_order_name=f"CafeFlow Order #{order.pk}",
+        name=order.contact_name or (order.customer.name if order.customer else "Guest"),
+        email=order.customer.email if order.customer else "",
+        phone=order.contact_phone or (order.customer.phone if order.customer else ""),
+    )
+
+    if payment_url_data.get("pidx"):
+        invoice, _ = Invoice.objects.get_or_create(order=order)
+        Payment.objects.create(
+            invoice=invoice,
+            payment_method=Payment.Method.KHALTI,
+            pidx=payment_url_data["pidx"],
+            status=Payment.Status.PENDING,
+            amount=order.grand_total,
+        )
+        return payment_url_data["payment_url"]
+    return None
+
+
 @login_required
 def khalti_initiate(request, order_pk):
     order = get_object_or_404(Order, pk=order_pk)
-    return_url = request.build_absolute_uri(f"/payments/khalti/callback/{order.pk}/")
+    payment_url = _initiate_khalti_payment(request, order)
 
-    try:
-        data = initiate_khalti_payment(order, return_url)
-        request.session[f"khalti_pidx_{order.pk}"] = data["pidx"]
-        return redirect(data["payment_url"])
-    except Exception:
-        # Sandbox/demo fallback — if Khalti isn't reachable, don't strand the customer
-        order.send_to_kitchen()
-        return redirect("orders:order_detail", pk=order.pk)
+    if payment_url:
+        return render(request, "payments/khalti_redirect.html", {"payment_url": payment_url})
+
+    messages.error(request, "Something went wrong starting the payment. Please try again.")
+    return redirect("orders:order_detail", pk=order.pk)
 
 
-@login_required
 def khalti_callback(request, order_pk):
     order = get_object_or_404(Order, pk=order_pk)
-    pidx = request.GET.get("pidx") or request.session.get(f"khalti_pidx_{order.pk}")
+    pidx = request.GET.get("pidx")
 
-    if pidx:
-        result = verify_khalti_payment(pidx)
-        if result.get("status") == "Completed":
-            invoice, _ = Invoice.objects.get_or_create(order=order)
-            Payment.objects.create(
-                invoice=invoice, payment_method=Payment.Method.ESEWA,  # Khalti not in original choices — see note below
-                amount=order.grand_total, status=Payment.Status.SUCCESS,
-            )
-            order.send_to_kitchen()
+    if not pidx:
+        messages.error(request, "Something went wrong, please contact staff.")
+        return redirect("orders:order_detail", pk=order.pk)
 
-    return redirect("orders:order_detail", pk=order.pk)
+    result = lookup_khalti_api(pidx)
+    payment = get_object_or_404(Payment, pidx=pidx)
+
+    if result.get("status") == "Completed":
+        payment.status = Payment.Status.SUCCESS
+        payment.transaction_id = request.GET.get("transaction_id", "")
+        payment.save()
+        payment.invoice.check_fully_paid()  # this cascades: Invoice paid → Order completed → Table cleaning → loyalty points
+    else:
+        payment.status = Payment.Status.FAILED
+        payment.save()
+
+    return render(request, "payments/khalti_result.html", {"order": order, "payment": payment})

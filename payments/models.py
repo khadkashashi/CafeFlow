@@ -16,11 +16,13 @@ class Payment(models.Model):
             FAILED = "FAILED", "Failed"
 
     invoice= models.ForeignKey(Invoice,on_delete=models.CASCADE, related_name="payments")
-    payment_method= models.CharField(max_length=20,choices=Method.choices)
+    payment_method= models.CharField(max_length=20,choices=Method.choices, default=Method.KHALTI)
     amount= models.DecimalField(max_digits=10, decimal_places=2)
+    pidx = models.CharField(max_length=100, blank=True, null=True)
     transaction_id=models.CharField(max_length=100, blank=True, unique= True, null=True)
     status=models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
     paid_at= models.DateTimeField(null=True, blank=True)
+
 
     class Meta:
          ordering=["-paid_at"]
