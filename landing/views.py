@@ -53,16 +53,21 @@ def leave_review(request, order_pk):
     return render(request, "landing/leave_review.html", {"order": order})
 
 
+@login_required
 def public_review(request):
-    submitted = False
+    customer, _ = Customer.objects.filter(user=request.user).first(), None
+    if not customer:
+        customer = Customer.objects.create(
+            user=request.user,
+            name=request.user.get_full_name() or request.user.username,
+            phone=request.user.phone,
+            email=request.user.email,
+        )
+
     if request.method == "POST":
-        phone = request.POST.get("phone", "").strip()
-        name = request.POST.get("name", "").strip()
         rating = request.POST.get("rating")
         comment = request.POST.get("comment", "").strip()
-        if phone and rating:
-            customer, _ = Customer.objects.get_or_create(phone=phone, defaults={"name": name or "Guest"})
+        if rating:
             Review.objects.create(customer=customer, rating=int(rating), comment=comment)
-            submitted = True
-
-    return render(request, "landing/public_review.html", {"submitted": submitted})
+            return redirect("landing:home")
+    return render(request, "landing/public_review.html", {})
