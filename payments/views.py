@@ -5,6 +5,9 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 from billing.models import Invoice
 from .models import Payment
+from orders.models import Order
+from .khalti import initiate_khalti_payment, verify_khalti_payment
+
 
 
 @login_required
@@ -67,3 +70,35 @@ def redeem_points(request, invoice_pk):
             customer.save(update_fields=["loyalty_points"])
 
     return redirect("payments:payment_screen", invoice_pk=invoice.pk)
+
+@login_required
+def khalti_initiate(request, order_pk):
+    order = get_object_or_404(Order, pk=order_pk)
+    return_url = request.build_absolute_uri(f"/payments/khalti/callback/{order.pk}/")
+
+    try:
+        data = initiate_khalti_payment(order, return_url)
+        request.session[f"khalti_pidx_{order.pk}"] = data["pidx"]
+        return redirect(data["payment_url"])
+    except Exception:
+        # Sandbox/demo fallback — if Khalti isn't reachable, don't strand the customer
+        order.send_to_kitchen()
+        return redirect("orders:order_detail", pk=order.pk)
+
+
+@login_required
+def khalti_callback(request, order_pk):
+    order = get_object_or_404(Order, pk=order_pk)
+    pidx = request.GET.get("pidx") or request.session.get(f"khalti_pidx_{order.pk}")
+
+    if pidx:
+        result = verify_khalti_payment(pidx)
+        if result.get("status") == "Completed":
+            invoice, _ = Invoice.objects.get_or_create(order=order)
+            Payment.objects.create(
+                invoice=invoice, payment_method=Payment.Method.ESEWA,  # Khalti not in original choices — see note below
+                amount=order.grand_total, status=Payment.Status.SUCCESS,
+            )
+            order.send_to_kitchen()
+
+    return redirect("orders:order_detail", pk=order.pk)

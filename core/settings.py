@@ -90,7 +90,8 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
 ]
 WSGI_APPLICATION = 'core.wsgi.application'
-
+KHALTI_SECRET_KEY = "2a3482ac3a0f459a9c64567546ea166b"  # replace with your actual Khalti test secret key
+KHALTI_BASE_URL = "https://dev.khalti.com/api/v2"  # sandbox endpoint
 
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases

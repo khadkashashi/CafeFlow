@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Track Order #{{ order.pk }}{% endblock %}
+
+{% block content %}
+<h3>Order #{{ order.pk }}</h3>
+<p class="text-muted">
+    {% if order.delivery_option == "DELIVERY" %}Delivering to {{ order.delivery_address }}
+    {% else %}Pickup — {{ order.contact_name }}{% endif %}
+</p>
+
+<div class="d-flex justify-content-between mt-4" style="max-width: 600px;">
+    {% for step in steps %}
+    <div class="text-center flex-fill">
+        <div class="mx-auto mb-2 rounded-circle d-flex align-items-center justify-content-center
+            {% if forloop.counter0 <= current_index %}bg-success text-white{% else %}bg-secondary text-white{% endif %}"
+            style="width: 36px; height: 36px;">
+            {% if forloop.counter0 <= current_index %}✓{% else %}{{ forloop.counter }}{% endif %}
+        </div>
+        <small>{{ step|title }}</small>
+    </div>
+    {% endfor %}
+</div>
+
+<p class="mt-4">
+    {% if order.status == "PENDING" %}Your order has been received.
+    {% elif order.status == "PREPARING" %}The kitchen is preparing your order now.
+    {% elif order.status == "READY" %}Your order is ready{% if order.delivery_option == "DELIVERY" %} and heading out for delivery{% endif %}!
+    {% elif order.status == "COMPLETED" %}Order completed — thanks for ordering with CafeFlow!
+    {% endif %}
+</p>
+
+<meta http-equiv="refresh" content="15">
+{% endblock %}

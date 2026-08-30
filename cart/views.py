@@ -6,6 +6,7 @@ from orders.models import Order, OrderItem
 from .cart import Cart
 from customers.models import Customer
 from tables.models import Table
+from .forms import CheckoutForm
 
 
 def cart_detail(request):
@@ -34,23 +35,43 @@ def checkout(request):
     cart = Cart(request)
     if len(cart) == 0:
         return redirect("cart:cart_detail")
-    customer = Customer.objects.filter(user=request.user).first()
-    if not customer:
-       customer = Customer.objects.create(
-         user=request.user,
-         name=request.user.get_full_name() or request.user.username,
-         phone=request.user.phone,
-         email=request.user.email,
-    )
-    table_id = request.session.pop("dine_in_table_id", None)
-    table = Table.objects.filter(pk=table_id).first() if table_id else None
-    order = Order.objects.create(customer=customer,         
-    source=Order.Source.DINE_IN if table else Order.Source.ONLINE, status=Order.Status.PENDING)
-    for item in cart:
-        OrderItem.objects.create(order=order, food=item["food"], quantity=item["quantity"])
-    order.recalculate_totals()
-    order.send_to_kitchen()
-    if table and table.status == Table.Status.AVAILABLE:
-        table.mark_occupied()
-    cart.clear()
-    return redirect("orders:order_detail", pk=order.pk)
+    if request.method == "POST":
+        form = CheckoutForm(request.POST)
+        if form.is_valid():
+            customer, _ = Customer.objects.get_or_create(user=request.user,
+                defaults={
+                    "name": request.user.get_full_name() or request.user.username,
+                    "phone": request.user.phone,
+                    "email": request.user.email,
+                },
+            )
+
+            table_id = request.session.pop("dine_in_table_id", None)
+            table = Table.objects.filter(pk=table_id).first() if table_id else None
+            order = Order.objects.create(
+                customer=customer,
+                table=table,
+                source=Order.Source.DINE_IN if table else Order.Source.ONLINE,
+                status=Order.Status.PENDING,
+                contact_name=form.cleaned_data["contact_name"],
+                contact_phone=form.cleaned_data["contact_phone"],
+                delivery_option=form.cleaned_data["delivery_option"],
+                delivery_address=form.cleaned_data.get("delivery_address", ""),
+            )
+            for item in cart:
+                OrderItem.objects.create(order=order, food=item["food"], quantity=item["quantity"])
+            order.recalculate_totals()
+            if table and table.status == Table.Status.AVAILABLE:
+                table.mark_occupied()
+            cart.clear()
+            if form.cleaned_data["payment_method"] == "KHALTI" and not table:
+                return redirect("payments:khalti_initiate", order_pk=order.pk)
+            order.send_to_kitchen()
+            return redirect("orders:order_detail", pk=order.pk)
+    else:
+        form = CheckoutForm(initial={
+            "contact_name": request.user.get_full_name() or request.user.username,
+            "contact_phone": request.user.phone,
+        })
+
+    return render(request, "cart/checkout.html", {"form": form, "cart": cart})

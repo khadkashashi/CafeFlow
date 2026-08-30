@@ -20,6 +20,11 @@ class Order(models.Model):
         ONLINE = "ONLINE", "Online"
         PICKUP = "PICKUP", "Pickup"
 
+    class DeliveryOption(models.TextChoices):
+        PICKUP = "PICKUP", "Pickup"
+        DELIVERY = "DELIVERY", "Delivery"
+
+
     table = models.ForeignKey(Table, on_delete=models.SET_NULL, null=True, blank=True, related_name="orders")
     waiter = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="taken_orders")
     customer = models.ForeignKey("customers.Customer", on_delete=models.SET_NULL, null=True, blank=True, related_name="orders")
@@ -31,6 +36,10 @@ class Order(models.Model):
     grand_total = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    delivery_option = models.CharField(max_length=20, choices=DeliveryOption.choices, null=True, blank=True)
+    delivery_address = models.CharField(max_length=255, blank=True)
+    contact_name = models.CharField(max_length=150, blank=True)
+    contact_phone = models.CharField(max_length=20, blank=True)
 
     class Meta:
         ordering = ["-created_at"]

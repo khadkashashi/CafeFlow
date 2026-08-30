@@ -35,3 +35,11 @@ def pos_screen(request):
 def order_detail(request, pk):
     order = get_object_or_404(Order, pk=pk)
     return render(request, "orders/order_detail.html", {"order": order})
+
+STATUS_STEPS = ["PENDING", "PREPARING", "READY", "COMPLETED"]
+
+@login_required
+def track_order(request, pk):
+    order = get_object_or_404(Order, pk=pk)
+    current_index = STATUS_STEPS.index(order.status) if order.status in STATUS_STEPS else -1
+    return render(request, "orders/track_order.html", { "order": order, "steps": STATUS_STEPS, "current_index": current_index})

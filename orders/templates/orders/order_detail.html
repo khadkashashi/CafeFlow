@@ -25,5 +25,6 @@
 </table>
 {% if order.status == "COMPLETED" and user.is_authenticated and order.customer.user == user and not order.review %}
 <a href="{% url 'landing:leave_review' order.pk %}" class="btn btn-outline-primary mt-3">Leave a Review</a>
+<a href="{% url 'orders:track_order' order.pk %}" class="btn btn-outline-primary">Track Order</a>
 {% endif %}
 {% endblock %}
