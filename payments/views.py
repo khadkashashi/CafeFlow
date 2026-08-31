@@ -9,6 +9,9 @@ from orders.models import Order
 from .khalti import get_payment_url, lookup_khalti_api
 from django.contrib import messages
 from django.urls import reverse
+from notifications.models import Notification
+from accounts.models import User
+
 
 
 
@@ -104,7 +107,7 @@ def khalti_initiate(request, order_pk):
     payment_url = _initiate_khalti_payment(request, order)
 
     if payment_url:
-        return render(request, "payments/khalti_redirect.html", {"payment_url": payment_url})
+        return render(request, "payments/khalti_redirect.html", {"payment_url": payment_url, "order": order})
 
     messages.error(request, "Something went wrong starting the payment. Please try again.")
     return redirect("orders:order_detail", pk=order.pk)
@@ -125,7 +128,56 @@ def khalti_callback(request, order_pk):
         payment.status = Payment.Status.SUCCESS
         payment.transaction_id = request.GET.get("transaction_id", "")
         payment.save()
-        payment.invoice.check_fully_paid()  # this cascades: Invoice paid → Order completed → Table cleaning → loyalty points
+        payment.invoice.check_fully_paid()
+
+        for staff in User.objects.filter(role__in=[User.Role.FRONT_DESK, User.Role.MANAGER]):
+            Notification.objects.create(
+                recipient=staff,
+                notification_type=Notification.Type.PAYMENT_RECEIVED,
+                message=f"Online order #{order.pk} paid via Khalti — ready for {order.get_delivery_option_display()}.",
+            )
+    else:
+        payment.status = Payment.Status.FAILED
+        payment.save()
+
+    return render(request, "payments/khalti_result.html", {"order": order, "payment": payment})
+
+
+@login_required
+def khalti_initiate(request, order_pk):
+    order = get_object_or_404(Order, pk=order_pk)
+    payment_url = _initiate_khalti_payment(request, order)
+
+    if payment_url:
+        return render(request, "payments/khalti_redirect.html", {"payment_url": payment_url, "order": order})
+
+    messages.error(request, "Something went wrong starting the payment. Please try again.")
+    return redirect("orders:order_detail", pk=order.pk)
+
+
+def khalti_callback(request, order_pk):
+    order = get_object_or_404(Order, pk=order_pk)
+    pidx = request.GET.get("pidx")
+
+    if not pidx:
+        messages.error(request, "Something went wrong, please contact staff.")
+        return redirect("orders:order_detail", pk=order.pk)
+
+    result = lookup_khalti_api(pidx)
+    payment = get_object_or_404(Payment, pidx=pidx)
+
+    if result.get("status") == "Completed":
+        payment.status = Payment.Status.SUCCESS
+        payment.transaction_id = request.GET.get("transaction_id", "")
+        payment.save()
+        payment.invoice.check_fully_paid()
+
+        for staff in User.objects.filter(role__in=[User.Role.FRONT_DESK, User.Role.MANAGER]):
+            Notification.objects.create(
+                recipient=staff,
+                notification_type=Notification.Type.PAYMENT_RECEIVED,
+                message=f"Online order #{order.pk} paid via Khalti — ready for {order.get_delivery_option_display()}.",
+            )
     else:
         payment.status = Payment.Status.FAILED
         payment.save()

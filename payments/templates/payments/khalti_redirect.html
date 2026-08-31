@@ -1,6 +1,53 @@
 {% extends "base.html" %}
+{% block title %}Payment Processing{% endblock %}
+
 {% block content %}
-<script>window.location.href = "{{ payment_url }}";</script>
-<p>Redirecting to Khalti...</p>
-<a href="{{ payment_url }}">Click here if not redirected</a>
+
+<div class="py-5">
+
+    <div class="col-lg-5 mx-auto card text-center p-4">
+
+        <div class="spinner-border mb-4 mx-auto" role="status" style="width: 3rem; height: 3rem; color: var(--copper);">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+
+        <h3 class="fw-bold mb-2">
+            Payment Processing
+        </h3>
+
+        <p class="text-muted mb-3">
+            Please wait while we redirect you to Khalti to pay for Order #{{ order.pk }}.
+        </p>
+
+        <p class="fw-semibold mb-4">
+            Redirecting in <span id="countdown">3</span> seconds...
+        </p>
+
+        <p class="text-muted small mb-0">
+            Not redirected automatically?
+            <a href="{{ payment_url }}">Click here</a>
+        </p>
+
+    </div>
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    let seconds = 3;
+    const countdown = document.getElementById("countdown");
+    const paymentUrl = "{{ payment_url|escapejs }}";
+
+    const timer = setInterval(() => {
+        seconds--;
+        countdown.textContent = seconds;
+
+        if (seconds <= 0) {
+            clearInterval(timer);
+            window.location.href = paymentUrl; // same-tab redirect - not blocked by popup blockers
+        }
+    }, 1000);
+});
+</script>
+
 {% endblock %}
