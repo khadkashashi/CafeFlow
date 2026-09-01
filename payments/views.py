@@ -76,29 +76,20 @@ def redeem_points(request, invoice_pk):
 
     return redirect("payments:payment_screen", invoice_pk=invoice.pk)
 
+
 def _initiate_khalti_payment(request, order):
     payment_url_data = get_payment_url(
         url=request.build_absolute_uri(reverse("payments:khalti_callback", args=[order.pk])),
         website_url=request.build_absolute_uri("/"),
-        amount=int(order.grand_total * 100),  # Khalti wants paisa, not rupees
-        purchase_order_id=order.pk,
+        amount=int(order.grand_total * 100),
+        purchase_order_id=str(order.pk),
         purchase_order_name=f"CafeFlow Order #{order.pk}",
         name=order.contact_name or (order.customer.name if order.customer else "Guest"),
         email=order.customer.email if order.customer else "",
         phone=order.contact_phone or (order.customer.phone if order.customer else ""),
     )
-
-    if payment_url_data.get("pidx"):
-        invoice, _ = Invoice.objects.get_or_create(order=order)
-        Payment.objects.create(
-            invoice=invoice,
-            payment_method=Payment.Method.KHALTI,
-            pidx=payment_url_data["pidx"],
-            status=Payment.Status.PENDING,
-            amount=order.grand_total,
-        )
-        return payment_url_data["payment_url"]
-    return None
+    # No Invoice or Payment created here anymore — only on confirmed success in khalti_callback.
+    return payment_url_data.get("payment_url")
 
 
 @login_required
@@ -107,7 +98,7 @@ def khalti_initiate(request, order_pk):
     payment_url = _initiate_khalti_payment(request, order)
 
     if payment_url:
-        return render(request, "payments/khalti_redirect.html", {"payment_url": payment_url, "order": order})
+        return render(request, "payments/khalti_redirect.html", {"payment_url": payment_url})
 
     messages.error(request, "Something went wrong starting the payment. Please try again.")
     return redirect("orders:order_detail", pk=order.pk)
@@ -117,74 +108,38 @@ def khalti_callback(request, order_pk):
     order = get_object_or_404(Order, pk=order_pk)
     pidx = request.GET.get("pidx")
 
-    if not pidx:
-        messages.error(request, "Something went wrong, please contact staff.")
-        return redirect("orders:order_detail", pk=order.pk)
-
-    result = lookup_khalti_api(pidx)
-    payment = get_object_or_404(Payment, pidx=pidx)
-
-    if result.get("status") == "Completed":
-        payment.status = Payment.Status.SUCCESS
-        payment.transaction_id = request.GET.get("transaction_id", "")
-        payment.save()
-        payment.invoice.check_fully_paid()
-
-        for staff in User.objects.filter(role__in=[User.Role.FRONT_DESK, User.Role.MANAGER]):
-            Notification.objects.create(
-                recipient=staff,
-                notification_type=Notification.Type.PAYMENT_RECEIVED,
-                message=f"Online order #{order.pk} paid via Khalti — ready for {order.get_delivery_option_display()}.",
-            )
-    else:
-        payment.status = Payment.Status.FAILED
-        payment.save()
-
-    return render(request, "payments/khalti_result.html", {"order": order, "payment": payment})
-
-
-@login_required
-def khalti_initiate(request, order_pk):
-    order = get_object_or_404(Order, pk=order_pk)
-    payment_url = _initiate_khalti_payment(request, order)
-
-    if payment_url:
-        return render(request, "payments/khalti_redirect.html", {"payment_url": payment_url, "order": order})
-
-    messages.error(request, "Something went wrong starting the payment. Please try again.")
-    return redirect("orders:order_detail", pk=order.pk)
-
-
-def khalti_callback(request, order_pk):
-    order = get_object_or_404(Order, pk=order_pk)
-    pidx = request.GET.get("pidx")
-    status = request.GET.get("status")
     if not pidx:
         order.status = Order.Status.CANCELLED
         order.save(update_fields=["status"])
         messages.error(request, "Payment was not completed. Your order has been cancelled.")
-        return redirect("orders:order_detail", pk=order.pk)
+        return render(request, "payments/khalti_result.html", {"order": order, "payment": None})
+
     result = lookup_khalti_api(pidx)
-    payment = get_object_or_404(Payment, pidx=pidx)
 
     if result.get("status") == "Completed":
-        payment.status = Payment.Status.SUCCESS
-        payment.transaction_id = request.GET.get("transaction_id", "")
-        payment.save()
-        invoice = payment.invoice
+        invoice, _ = Invoice.objects.get_or_create(order=order)
+        payment = Payment.objects.create(
+            invoice=invoice,
+            payment_method=Payment.Method.KHALTI,
+            pidx=pidx,
+            transaction_id=request.GET.get("transaction_id", ""),
+            status=Payment.Status.SUCCESS,
+            amount=order.grand_total,
+        )
+
         invoice.is_paid = True
         invoice.save(update_fields=["is_paid"])
+
         order.send_to_kitchen()
 
         for staff in User.objects.filter(role__in=[User.Role.FRONT_DESK, User.Role.MANAGER]):
             Notification.objects.create(
                 recipient=staff,
                 notification_type=Notification.Type.PAYMENT_RECEIVED,
-                message=f"Online order #{order.pk} paid via Khalti (Rs.{order.grand_total}) — ready to send to kitchen.",
+                message=f"Online order #{order.pk} paid via Khalti (Rs.{order.grand_total}) — sent to kitchen.",
             )
     else:
-        payment.status = Payment.Status.FAILED
-        payment.save()
+        payment = None
         order.status = Order.Status.CANCELLED
         order.save(update_fields=["status"])
 
@@ -192,4 +147,3 @@ def khalti_callback(request, order_pk):
             order.table.mark_available()
 
     return render(request, "payments/khalti_result.html", {"order": order, "payment": payment})
-

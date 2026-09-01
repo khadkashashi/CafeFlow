@@ -1,3 +1,4 @@
+
 {% extends "base.html" %}
 
 {% block title %}Payment Result{% endblock %}
@@ -5,73 +6,120 @@
 {% block content %}
 
 <div class="py-5">
+    <div class="col-lg-6 mx-auto">
 
-    <div class="col-lg-6 mx-auto card p-4">
+        <div class="card p-4">
 
-        <div class="text-center mb-4">
+            <!-- Payment Status -->
+            <div class="text-center mb-4">
 
+                {% if payment.status == "SUCCESS" %}
+
+                    <i class="bi bi-check-circle-fill text-success"
+                       style="font-size: 60px;"></i>
+
+                    <h3 class="mt-3 mb-1">Payment Successful</h3>
+
+                    <p class="text-muted">
+                        Order #{{ order.pk }} has been sent to the kitchen and is being prepared.
+                    </p>
+
+                {% else %}
+
+                    <i class="bi bi-x-circle-fill text-danger"
+                       style="font-size: 60px;"></i>
+
+                    <h3 class="mt-3 mb-1">Payment Failed</h3>
+
+                    <p class="text-muted">
+                        Your payment was cancelled or failed. No charge was made, and your order has been cancelled.
+                    </p>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- Payment Details -->
+            <div class="border rounded">
+
+                <div class="d-flex justify-content-between p-3 border-bottom">
+                    <span class="text-muted">Order</span>
+                    <span class="fw-semibold">#{{ order.pk }}</span>
+                </div>
+
+                <div class="d-flex justify-content-between p-3 border-bottom">
+                    <span class="text-muted">Amount</span>
+                    <span class="fw-semibold">Rs. {{ payment.amount }}</span>
+                </div>
+
+                <div class="d-flex justify-content-between p-3 border-bottom">
+                    <span class="text-muted">Payment Method</span>
+                    <span class="fw-semibold">
+                        {{ payment.get_payment_method_display }}
+                    </span>
+                </div>
+
+                <div class="d-flex justify-content-between p-3 border-bottom">
+                    <span class="text-muted">Status</span>
+                    <span class="fw-semibold">
+                        {{ payment.get_status_display }}
+                    </span>
+                </div>
+
+                <div class="d-flex justify-content-between p-3 border-bottom">
+                    <span class="text-muted">Transaction ID</span>
+                    <span class="fw-semibold">
+                        {{ payment.transaction_id|default:"N/A" }}
+                    </span>
+                </div>
+
+                <div class="d-flex justify-content-between p-3">
+                    <span class="text-muted">PIDX</span>
+                    <span class="fw-semibold">
+                        {{ payment.pidx|default:"N/A" }}
+                    </span>
+                </div>
+
+            </div>
+
+
+            <!-- Actions -->
             {% if payment.status == "SUCCESS" %}
 
-                <i class="bi bi-check-circle-fill text-success" style="font-size: 60px;"></i>
-                <h3 class="mt-3 mb-1">Payment Successful</h3>
-                <p class="text-muted">Order #{{ order.pk }} is being prepared.</p>
+                <div class="d-flex gap-2 mt-4">
+
+                    {% if payment.invoice %}
+                        <a href="{% url 'billing:receipt' payment.invoice.pk %}"
+                           class="btn btn-outline-dark flex-fill"
+                           target="_blank">
+                            <i class="bi bi-receipt"></i>
+                            View / Print Receipt
+                        </a>
+                    {% endif %}
+
+                    <a href="{% url 'orders:track_order' order.pk %}"
+                       class="btn btn-primary flex-fill">
+                        <i class="bi bi-truck"></i>
+                        Track Order
+                    </a>
+
+                </div>
 
             {% else %}
 
-                <i class="bi bi-x-circle-fill text-danger" style="font-size: 60px;"></i>
-                <h3 class="mt-3 mb-1">Payment Failed</h3>
-                <p class="text-muted">Your payment could not be completed or was cancelled.</p>
+                <a href="{% url 'landing:menu' %}"
+                   class="btn btn-outline-primary w-100 mt-4">
+                    <i class="bi bi-menu-button-wide"></i>
+                    View Menu
+                </a>
 
             {% endif %}
 
         </div>
 
-        <div class="border rounded">
-
-            <div class="d-flex justify-content-between p-3 border-bottom">
-                <span class="text-muted">Order</span>
-                <span class="fw-semibold">#{{ order.pk }}</span>
-            </div>
-
-            <div class="d-flex justify-content-between p-3 border-bottom">
-                <span class="text-muted">Amount</span>
-                <span class="fw-semibold">Rs.{{ payment.amount }}</span>
-            </div>
-
-            <div class="d-flex justify-content-between p-3 border-bottom">
-                <span class="text-muted">Payment Method</span>
-                <span class="fw-semibold">{{ payment.get_payment_method_display }}</span>
-            </div>
-
-            <div class="d-flex justify-content-between p-3 border-bottom">
-                <span class="text-muted">Status</span>
-                <span class="fw-semibold">{{ payment.get_status_display }}</span>
-            </div>
-
-            <div class="d-flex justify-content-between p-3 border-bottom">
-                <span class="text-muted">Transaction ID</span>
-                <span class="fw-semibold">{{ payment.transaction_id|default:"N/A" }}</span>
-            </div>
-
-            <div class="d-flex justify-content-between p-3">
-                <span class="text-muted">PIDX</span>
-                <span class="fw-semibold">{{ payment.pidx }}</span>
-            </div>
-
-        </div>
-
-        {% if payment.status == "SUCCESS" %}
-        <a href="{% url 'orders:track_order' order.pk %}" class="btn btn-primary w-100 mt-4">
-            Track Order
-        </a>
-        {% else %}
-        <a href="{% url 'orders:order_detail' order.pk %}" class="btn btn-outline-primary w-100 mt-4">
-            Back to Order
-        </a>
-        {% endif %}
-
     </div>
-
 </div>
 
 {% endblock %}
+
