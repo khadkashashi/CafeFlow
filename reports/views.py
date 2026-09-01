@@ -7,6 +7,7 @@ from accounts.decorators import role_required
 from accounts.models import User
 from inventory.models import Ingredient
 from orders.models import Order, OrderItem
+from payments.models import Payment
 
 # Create your views here.
 @role_required(User.Role.MANAGER)
@@ -18,11 +19,13 @@ def reports_dashboard(request):
     best_selling = (OrderItem.objects.values("food__name").annotate(total_sold=Sum("quantity")).order_by("-total_sold")[:5])
     low_stock_items = Ingredient.objects.filter(quantity__lte=F("minimum_stock"))
     order_count_today = Order.objects.filter(created_at__date=today).count()
+    payment_breakdown = (Payment.objects.filter(status=Payment.Status.SUCCESS).values("payment_method").annotate(total=Sum("amount"), count=Count("id")).order_by("-total"))
     context={
         "todays_revenue": todays_revenue,
         "weekly_revenue": weekly_revenue,
         "best_selling": best_selling,
         "low_stock_items": low_stock_items,
         "order_count_today": order_count_today,
+        "payment_breakdown":payment_breakdown
     }
     return render(request,"reports/dashboard.html",context)

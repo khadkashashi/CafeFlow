@@ -61,5 +61,16 @@
             </tbody>
         </table>
     </div>
+    <h5 class="mt-4">Payment Methods</h5>
+<table class="table table-sm bg-white">
+    <thead><tr><th>Method</th><th>Transactions</th><th>Total</th></tr></thead>
+    <tbody>
+        {% for p in payment_breakdown %}
+        <tr><td>{{ p.payment_method }}</td><td>{{ p.count }}</td><td>Rs.{{ p.total }}</td></tr>
+        {% empty %}
+        <tr><td colspan="3" class="text-muted">No payments yet.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
 </div>
 {% endblock %}

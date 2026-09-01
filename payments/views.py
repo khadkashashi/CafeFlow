@@ -11,7 +11,7 @@ from django.contrib import messages
 from django.urls import reverse
 from notifications.models import Notification
 from accounts.models import User
-
+from tables.models import Table
 
 
 
@@ -158,11 +158,12 @@ def khalti_initiate(request, order_pk):
 def khalti_callback(request, order_pk):
     order = get_object_or_404(Order, pk=order_pk)
     pidx = request.GET.get("pidx")
-
+    status = request.GET.get("status")
     if not pidx:
-        messages.error(request, "Something went wrong, please contact staff.")
+        order.status = Order.Status.CANCELLED
+        order.save(update_fields=["status"])
+        messages.error(request, "Payment was not completed. Your order has been cancelled.")
         return redirect("orders:order_detail", pk=order.pk)
-
     result = lookup_khalti_api(pidx)
     payment = get_object_or_404(Payment, pidx=pidx)
 
@@ -170,16 +171,25 @@ def khalti_callback(request, order_pk):
         payment.status = Payment.Status.SUCCESS
         payment.transaction_id = request.GET.get("transaction_id", "")
         payment.save()
-        payment.invoice.check_fully_paid()
+        invoice = payment.invoice
+        invoice.is_paid = True
+        invoice.save(update_fields=["is_paid"])
+        order.send_to_kitchen()
 
         for staff in User.objects.filter(role__in=[User.Role.FRONT_DESK, User.Role.MANAGER]):
             Notification.objects.create(
                 recipient=staff,
                 notification_type=Notification.Type.PAYMENT_RECEIVED,
-                message=f"Online order #{order.pk} paid via Khalti — ready for {order.get_delivery_option_display()}.",
+                message=f"Online order #{order.pk} paid via Khalti (Rs.{order.grand_total}) — ready to send to kitchen.",
             )
     else:
         payment.status = Payment.Status.FAILED
         payment.save()
+        order.status = Order.Status.CANCELLED
+        order.save(update_fields=["status"])
+
+        if order.table and order.table.status == Table.Status.OCCUPIED:
+            order.table.mark_available()
 
     return render(request, "payments/khalti_result.html", {"order": order, "payment": payment})
+
