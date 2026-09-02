@@ -17,173 +17,78 @@
         --burgundy: #5C2A2E;
         --smoke: #8C8378;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     html { scroll-behavior: smooth; }
-
     body {
-        background: var(--espresso);
-        color: var(--parchment);
-        font-family: 'Work Sans', sans-serif;
-        font-weight: 400;
-        line-height: 1.6;
-        overflow-x: hidden;
+        background: var(--espresso); color: var(--parchment);
+        font-family: 'Work Sans', sans-serif; line-height: 1.6; overflow-x: hidden;
     }
-
     a { color: inherit; text-decoration: none; }
-
     .eyebrow {
-        font-family: 'IBM Plex Mono', monospace;
-        font-size: 0.72rem;
-        letter-spacing: 0.18em;
-        text-transform: uppercase;
-        color: var(--copper-bright);
+        font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem;
+        letter-spacing: 0.18em; text-transform: uppercase; color: var(--copper-bright);
     }
-
     h1, h2, h3 { font-family: 'Fraunces', serif; font-weight: 450; line-height: 1.08; }
 
     .nav {
-        position: absolute;
-        top: 0; left: 0; right: 0;
-        z-index: 10;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 1.75rem 4vw;
+        position: absolute; top: 0; left: 0; right: 0; z-index: 10;
+        display: flex; align-items: center; justify-content: space-between; padding: 1.75rem 4vw;
     }
-
-    .brand {
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-        font-family: 'Fraunces', serif;
-        font-size: 1.3rem;
-        font-weight: 600;
-        letter-spacing: 0.01em;
-    }
-
-    .steam-mark { width: 22px; height: 30px; position: relative; }
+    .brand { display: flex; align-items: center; gap: 0.6rem; font-family: 'Fraunces', serif; font-size: 1.3rem; font-weight: 600; }
+    .steam-mark { width: 22px; height: 30px; }
     .steam-mark svg { width: 100%; height: 100%; }
     .steam-mark path {
-        fill: none;
-        stroke: var(--copper-bright);
-        stroke-width: 1.4;
-        stroke-linecap: round;
-        stroke-dasharray: 40;
-        stroke-dashoffset: 0;
-        animation: rise 3.2s ease-in-out infinite;
-        transform-origin: center;
+        fill: none; stroke: var(--copper-bright); stroke-width: 1.4; stroke-linecap: round;
+        stroke-dasharray: 40; animation: rise 3.2s ease-in-out infinite; transform-origin: center;
     }
     .steam-mark path:nth-child(2) { animation-delay: 0.5s; opacity: 0.6; }
     @keyframes rise {
-        0%   { transform: translateY(2px) scaleY(0.9); opacity: 0.35; }
-        50%  { transform: translateY(-3px) scaleY(1.05); opacity: 1; }
-        100% { transform: translateY(2px) scaleY(0.9); opacity: 0.35; }
+        0%, 100% { transform: translateY(2px) scaleY(0.9); opacity: 0.35; }
+        50% { transform: translateY(-3px) scaleY(1.05); opacity: 1; }
     }
-    @media (prefers-reduced-motion: reduce) {
-        .steam-mark path { animation: none; opacity: 0.8; }
-    }
+    @media (prefers-reduced-motion: reduce) { .steam-mark path { animation: none; opacity: 0.8; } }
 
-    .nav-links {
-        display: flex;
-        align-items: center;
-        gap: 2.2rem;
-        font-size: 0.85rem;
-        letter-spacing: 0.02em;
-    }
+    .nav-links { display: flex; align-items: center; gap: 2rem; font-size: 0.85rem; }
     .nav-links a { opacity: 0.78; transition: opacity 0.2s; }
     .nav-links a:hover { opacity: 1; }
-    .nav-links .cta {
-        border: 1px solid var(--copper);
-        padding: 0.5rem 1.1rem;
-        border-radius: 2px;
-        opacity: 1;
-    }
+    .nav-links .cta { border: 1px solid var(--copper); padding: 0.5rem 1.1rem; border-radius: 2px; opacity: 1; }
     .nav-links .cta:hover { background: var(--copper); color: var(--espresso); }
+    .nav-links .cta.filled { background: var(--copper); color: var(--espresso); }
+    .nav-links .cta.filled:hover { background: var(--copper-bright); }
 
-    .hero {
-        display: grid;
-        grid-template-columns: 1.1fr 0.9fr;
-        min-height: 100vh;
-        position: relative;
-    }
-
-    .hero-copy {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        padding: 0 5vw;
-        position: relative;
-        z-index: 2;
-    }
-
-    .hero-copy h1 {
-        font-size: clamp(2.6rem, 5.2vw, 4.6rem);
-        margin: 1.1rem 0 1.5rem;
-        max-width: 11ch;
-    }
+    .hero { display: grid; grid-template-columns: 1.1fr 0.9fr; min-height: 100vh; position: relative; }
+    .hero-copy { display: flex; flex-direction: column; justify-content: center; padding: 0 5vw; position: relative; z-index: 2; }
+    .hero-copy h1 { font-size: clamp(2.6rem, 5.2vw, 4.6rem); margin: 1.1rem 0 1.5rem; max-width: 11ch; }
     .hero-copy h1 em { font-style: italic; color: var(--copper-bright); }
-
-    .hero-copy p {
-        max-width: 38ch;
-        color: var(--smoke);
-        font-size: 1.05rem;
-        margin-bottom: 2.4rem;
-    }
-
-    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
-
+    .hero-copy p { max-width: 38ch; color: var(--smoke); font-size: 1.05rem; margin-bottom: 2.2rem; }
+    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
     .btn-primary, .btn-ghost {
-        font-family: 'IBM Plex Mono', monospace;
-        font-size: 0.8rem;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        padding: 0.95rem 1.8rem;
-        border-radius: 2px;
-        display: inline-block;
-        transition: all 0.2s;
+        font-family: 'IBM Plex Mono', monospace; font-size: 0.8rem; letter-spacing: 0.06em;
+        text-transform: uppercase; padding: 0.95rem 1.8rem; border-radius: 2px; display: inline-block; transition: all 0.2s;
     }
     .btn-primary { background: var(--copper); color: var(--espresso); }
     .btn-primary:hover { background: var(--copper-bright); }
     .btn-ghost { border: 1px solid var(--smoke); color: var(--parchment); }
     .btn-ghost:hover { border-color: var(--parchment); }
+    .hero-subaction { font-size: 0.82rem; color: var(--smoke); }
+    .hero-subaction a { color: var(--copper-bright); border-bottom: 1px solid rgba(217,154,92,0.4); }
 
     .hero-meta {
-        position: absolute;
-        bottom: 2.5rem;
-        left: 5vw;
-        display: flex;
-        gap: 2.5rem;
-        font-family: 'IBM Plex Mono', monospace;
-        font-size: 0.75rem;
-        color: var(--smoke);
-        z-index: 2;
+        position: absolute; bottom: 2.5rem; left: 5vw; display: flex; gap: 2.5rem;
+        font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--smoke); z-index: 2;
     }
-    .hero-meta strong { color: var(--parchment); display: block; font-size: 0.9rem; margin-bottom: 0.2rem; font-family: 'Work Sans', sans-serif; font-weight: 500;}
+    .hero-meta strong { color: var(--parchment); display: block; font-size: 0.9rem; margin-bottom: 0.2rem; font-family: 'Work Sans', sans-serif; font-weight: 500; }
 
-    .hero-image {
-        position: relative;
-        overflow: hidden;
-        border-left: 1px solid rgba(193,127,62,0.35);
-    }
+    .hero-image { position: relative; overflow: hidden; border-left: 1px solid rgba(193,127,62,0.35); }
     .hero-image img, .hero-image .fallback {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        filter: saturate(0.9) contrast(1.05);
+        position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: saturate(0.9) contrast(1.05);
     }
     .hero-image .fallback {
-        background:
-            radial-gradient(circle at 30% 20%, rgba(193,127,62,0.25), transparent 55%),
-            radial-gradient(circle at 70% 80%, rgba(92,42,46,0.4), transparent 55%),
-            var(--espresso-light);
+        background: radial-gradient(circle at 30% 20%, rgba(193,127,62,0.25), transparent 55%),
+                    radial-gradient(circle at 70% 80%, rgba(92,42,46,0.4), transparent 55%), var(--espresso-light);
     }
     .hero-image::after {
-        content: "";
-        position: absolute; inset: 0;
+        content: ""; position: absolute; inset: 0;
         background: linear-gradient(180deg, rgba(22,17,15,0.15), rgba(22,17,15,0.55) 85%);
     }
 
@@ -196,82 +101,63 @@
         .nav-links { gap: 1.2rem; font-size: 0.78rem; }
     }
 
-    section { padding: 7rem 5vw; }
+    section { padding: 6rem 5vw; }
     .section-head {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-        gap: 2rem;
-        margin-bottom: 3.5rem;
-        border-bottom: 1px solid rgba(140,131,120,0.25);
-        padding-bottom: 1.5rem;
+        display: flex; justify-content: space-between; align-items: flex-end; gap: 2rem;
+        margin-bottom: 3rem; border-bottom: 1px solid rgba(140,131,120,0.25); padding-bottom: 1.5rem;
     }
     .section-head h2 { font-size: clamp(1.8rem, 3vw, 2.6rem); }
     .section-head p { max-width: 32ch; color: var(--smoke); font-size: 0.95rem; }
 
-    .pour-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1px;
-        background: rgba(140,131,120,0.2);
+    /* How ordering works */
+    .flow-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: rgba(140,131,120,0.2); }
+    .flow-step { background: var(--espresso); padding: 2rem 1.6rem; position: relative; }
+    .flow-step .num {
+        font-family: 'Fraunces', serif; font-style: italic; font-size: 2.2rem; color: var(--burgundy); margin-bottom: 0.8rem;
     }
-    .pour-card {
-        background: var(--espresso);
-        padding: 2.2rem 2rem;
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        transition: background 0.25s;
-    }
+    .flow-step h3 { font-size: 1.05rem; margin-bottom: 0.5rem; }
+    .flow-step p { color: var(--smoke); font-size: 0.85rem; }
+    .flow-step a.step-link { display: inline-block; margin-top: 0.8rem; font-size: 0.78rem; color: var(--copper-bright); border-bottom: 1px solid rgba(217,154,92,0.4); }
+    @media (max-width: 900px) { .flow-strip { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 560px) { .flow-strip { grid-template-columns: 1fr; } }
+
+    .pour-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: rgba(140,131,120,0.2); }
+    .pour-card { background: var(--espresso); padding: 2.2rem 2rem; display: flex; flex-direction: column; gap: 1rem; transition: background 0.25s; }
     .pour-card:hover { background: var(--espresso-light); }
-    .pour-photo {
-        width: 100%;
-        aspect-ratio: 4/3;
-        border-radius: 2px;
-        overflow: hidden;
-        background: var(--espresso-light);
-    }
+    .pour-photo { width: 100%; aspect-ratio: 4/3; border-radius: 2px; overflow: hidden; background: var(--espresso-light); }
     .pour-photo img { width: 100%; height: 100%; object-fit: cover; }
     .pour-card h3 { font-size: 1.25rem; font-weight: 450; }
     .pour-card .cat { color: var(--copper-bright); }
     .pour-price { font-family: 'IBM Plex Mono', monospace; font-size: 0.95rem; color: var(--parchment); margin-top: auto; }
-
+    .pour-add { align-self: flex-start; }
+    .pour-add form { display: flex; gap: 0.5rem; align-items: center; }
+    .pour-add input[type="number"] {
+        width: 46px; background: var(--espresso-light); border: 1px solid rgba(140,131,120,0.3);
+        color: var(--parchment); border-radius: 4px; padding: 0.3rem; text-align: center; font-size: 0.8rem;
+    }
+    .pour-add button {
+        background: none; border: 1px solid var(--copper); color: var(--copper-bright);
+        border-radius: 20px; padding: 0.35rem 1rem; font-family: 'IBM Plex Mono', monospace;
+        font-size: 0.72rem; text-transform: uppercase; cursor: pointer;
+    }
+    .pour-add button:hover { background: var(--copper); color: var(--espresso); }
     @media (max-width: 900px) { .pour-grid { grid-template-columns: 1fr; } }
 
-    .about {
-        display: grid;
-        grid-template-columns: 0.85fr 1.15fr;
-        gap: 4rem;
-        align-items: center;
-    }
-    .about-mark {
-        font-family: 'Fraunces', serif;
-        font-style: italic;
-        font-size: clamp(3rem, 7vw, 6rem);
-        color: var(--burgundy);
-        line-height: 0.9;
-    }
+    .about { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 4rem; align-items: center; }
+    .about-mark { font-family: 'Fraunces', serif; font-style: italic; font-size: clamp(3rem, 7vw, 6rem); color: var(--burgundy); line-height: 0.9; }
     .about-copy h2 { font-size: clamp(1.8rem, 3vw, 2.4rem); margin-bottom: 1.3rem; }
     .about-copy p { color: var(--smoke); max-width: 52ch; margin-bottom: 1rem; }
     @media (max-width: 900px) { .about { grid-template-columns: 1fr; gap: 2rem; } }
 
     footer {
-        padding: 4rem 5vw 3rem;
-        border-top: 1px solid rgba(140,131,120,0.25);
-        display: flex;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 2rem;
+        padding: 4rem 5vw 3rem; border-top: 1px solid rgba(140,131,120,0.25);
+        display: flex; justify-content: space-between; flex-wrap: wrap; gap: 2rem;
     }
     footer .brand { margin-bottom: 0.5rem; }
     footer .col { min-width: 180px; }
     footer .col h4 {
-        font-family: 'IBM Plex Mono', monospace;
-        font-size: 0.72rem;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-        color: var(--copper-bright);
-        margin-bottom: 0.9rem;
+        font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; letter-spacing: 0.14em;
+        text-transform: uppercase; color: var(--copper-bright); margin-bottom: 0.9rem;
     }
     footer .col p, footer .col a { color: var(--smoke); font-size: 0.9rem; display: block; margin-bottom: 0.4rem; }
     footer .col a:hover { color: var(--parchment); }
@@ -289,33 +175,40 @@
         </span>
         CafeFlow
     </a>
-<div class="nav-links">
-    <a href="{% url 'landing:home' %}">Home</a>
-    <a href="{% url 'landing:menu' %}">Menu</a>
-    <a href="{% url 'cart:cart_detail' %}">Cart</a>
-    <a href="{% url 'customers:check_points' %}">Loyalty Points</a>
-    <a href="{% url 'reservations:make_reservation' %}">Reserve</a>
-    {% if user.is_authenticated %}
-    <form method="post" action="{% url 'logout' %}" style="display:inline;">
-        {% csrf_token %}
-        <button type="submit" class="cta" style="background:none;border:1px solid var(--copper);color:inherit;font:inherit;cursor:pointer;">Log out</button>
-    </form>
-    {% else %}
-    <a href="{% url 'login' %}" class="cta">Log in</a>
-    <a href="{% url 'signup' %}" style="opacity:0.78;">Sign up</a>
-    {% endif %}
-</div>
+    <div class="nav-links">
+        <a href="{% url 'landing:menu' %}">Menu</a>
+        <a href="{% url 'cart:cart_detail' %}">Cart</a>
+        <a href="{% url 'reservations:make_reservation' %}">Reserve</a>
+        <a href="{% url 'customers:check_points' %}">Loyalty</a>
+        {% if user.is_authenticated %}
+        <a href="{% url 'customers:my_account' %}">My Orders</a>
+        <form method="post" action="{% url 'logout' %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="cta" style="background:none;border:1px solid var(--copper);color:inherit;font:inherit;cursor:pointer;">Log out</button>
+        </form>
+        {% else %}
+        <a href="{% url 'login' %}">Log in</a>
+        <a href="{% url 'landing:menu' %}" class="cta filled">Order Now</a>
+        {% endif %}
+    </div>
 </nav>
 
 <section class="hero" style="padding:0;">
     <div class="hero-copy">
         <span class="eyebrow">Butwal · Est. 2026</span>
         <h1>A slow morning,<br><em>brewed</em> right.</h1>
-        <p>Small-batch coffee, made-from-scratch food, and a room built for lingering. No rush — the espresso machine sets the pace here.</p>
+        <p>Small-batch coffee, made-from-scratch food, and a room built for lingering. Order ahead, dine in, or scan the table QR — one kitchen, same care, either way.</p>
         <div class="hero-actions">
-            <a href="{% url 'landing:menu' %}" class="btn-primary">View Menu</a>
-            <a href="#today" class="btn-ghost">Today's Pour</a>
+            <a href="{% url 'landing:menu' %}" class="btn-primary">Order Online</a>
+            <a href="{% url 'reservations:make_reservation' %}" class="btn-ghost">Reserve a Table</a>
         </div>
+        <p class="hero-subaction">
+            {% if user.is_authenticated %}
+            Already ordered? <a href="{% url 'customers:my_account' %}">Track your order</a>
+            {% else %}
+            Already ordered? <a href="{% url 'login' %}">Log in to track it</a>
+            {% endif %}
+        </p>
     </div>
     <div class="hero-image">
         {% if featured.0.image %}
@@ -326,8 +219,39 @@
     </div>
     <div class="hero-meta">
         <div><strong>7:00 – 21:00</strong>Open daily</div>
-        <div><strong>Dine-in · Pickup</strong>Order ahead online</div>
+        <div><strong>Dine-in · Pickup · Delivery</strong>Order ahead online</div>
         <div><strong>Butwal, Lumbini</strong>Find us</div>
+    </div>
+</section>
+
+<section>
+    <div class="section-head">
+        <h2>Ordering Online Takes a Minute</h2>
+        <p>Same kitchen as walking in — just skip the line.</p>
+    </div>
+    <div class="flow-strip">
+        <div class="flow-step">
+            <div class="num">01</div>
+            <h3>Browse the Menu</h3>
+            <p>See what's fresh today, with real photos and prices — no guessing.</p>
+            <a href="{% url 'landing:menu' %}" class="step-link">View Menu →</a>
+        </div>
+        <div class="flow-step">
+            <div class="num">02</div>
+            <h3>Add to Cart</h3>
+            <p>Pick your items and quantities. Change your mind anytime before checkout.</p>
+            <a href="{% url 'cart:cart_detail' %}" class="step-link">View Cart →</a>
+        </div>
+        <div class="flow-step">
+            <div class="num">03</div>
+            <h3>Checkout & Pay</h3>
+            <p>Pickup or delivery, pay with Khalti or cash — your choice.</p>
+        </div>
+        <div class="flow-step">
+            <div class="num">04</div>
+            <h3>Track & Enjoy</h3>
+            <p>Watch your order move from kitchen to ready, in real time.</p>
+        </div>
     </div>
 </section>
 
@@ -345,6 +269,13 @@
             <span class="eyebrow cat">{{ item.category.name }}</span>
             <h3>{{ item.name }}</h3>
             <span class="pour-price">Rs.{{ item.price }}</span>
+            <div class="pour-add">
+                <form method="post" action="{% url 'cart:cart_add' item.id %}">
+                    {% csrf_token %}
+                    <input type="number" name="quantity" value="1" min="1">
+                    <button type="submit">Add to Cart</button>
+                </form>
+            </div>
         </div>
         {% empty %}
         <div class="pour-card"><p style="color:var(--smoke);">The menu's warming up — check back shortly.</p></div>
@@ -352,35 +283,34 @@
     </div>
 </section>
 
-<section class="about">
-    <div class="about-mark">&ldquo;Coffee<br>first.&rdquo;</div>
-    <div class="about-copy">
-        <span class="eyebrow">The Room</span>
-        <h2>Built for people who linger.</h2>
-        <p>CafeFlow started as a single espresso bar and grew into a full kitchen without losing the thing that mattered: a room where the coffee's good enough that you stay for a second cup.</p>
-        <p>Every order — whether you're at a table or ordering ahead online — goes through the same kitchen, at the same pace, with the same care.</p>
-    </div>
-</section>
 {% if reviews %}
 <section>
     <div class="section-head">
         <h2>What People Say</h2>
         <p>A few words from customers who've been in.</p>
     </div>
-    <div class="row">
+    <div class="pour-grid" style="grid-template-columns: repeat(3, 1fr);">
         {% for r in reviews %}
-        <div class="col-md-4 mb-4">
-            <div style="border-left: 2px solid var(--copper); padding-left: 1.2rem;">
-                <p style="color: var(--copper-bright); margin-bottom: 0.4rem;">{% for i in "12345" %}{% if forloop.counter <= r.rating %}★{% else %}☆{% endif %}{% endfor %}</p>
-                {% if r.comment %}<p style="color: var(--parchment); font-style: italic;">"{{ r.comment }}"</p>{% endif %}
-                <span class="eyebrow">{{ r.customer.name }}</span>
-            </div>
+        <div class="pour-card" style="border-left: 2px solid var(--copper); gap: 0.6rem;">
+            <p style="color: var(--copper-bright);">{% for i in "12345" %}{% if forloop.counter <= r.rating %}★{% else %}☆{% endif %}{% endfor %}</p>
+            {% if r.comment %}<p style="font-style: italic; color: var(--parchment);">"{{ r.comment }}"</p>{% endif %}
+            <span class="eyebrow">{{ r.customer.name }}</span>
         </div>
         {% endfor %}
     </div>
 </section>
 {% endif %}
-</div>
+
+<section class="about">
+    <div class="about-mark">&ldquo;Coffee<br>first.&rdquo;</div>
+    <div class="about-copy">
+        <span class="eyebrow">The Room</span>
+        <h2>Built for people who linger.</h2>
+        <p>CafeFlow started as a single espresso bar and grew into a full kitchen without losing the thing that mattered: a room where the coffee's good enough that you stay for a second cup.</p>
+        <p>Every order — whether you're at a table, ordering ahead online, or scanning the QR code in front of you — goes through the same kitchen, at the same pace, with the same care.</p>
+    </div>
+</section>
+
 <footer>
     <div class="col">
         <div class="brand">
@@ -400,18 +330,20 @@
         <p>Open daily, 7:00 – 21:00</p>
     </div>
     <div class="col">
-    <h4>Order</h4>
-    <a href="{% url 'landing:menu' %}">Browse Menu</a>
-    <a href="{% url 'cart:cart_detail' %}">Your Cart</a>
-    <a href="{% url 'customers:check_points' %}">Check Loyalty Points</a>
-    <a href="{% url 'landing:public_review' %}">Leave a Review</a>
-
-</div>
+        <h4>Order</h4>
+        <a href="{% url 'landing:menu' %}">Browse Menu</a>
+        <a href="{% url 'cart:cart_detail' %}">Your Cart</a>
+        <a href="{% url 'reservations:make_reservation' %}">Reserve a Table</a>
+        <a href="{% url 'customers:check_points' %}">Check Loyalty Points</a>
+        <a href="{% url 'landing:public_review' %}">Leave a Review</a>
+    </div>
     <div class="col">
         <h4>Staff</h4>
         <a href="{% url 'login' %}">Staff Login</a>
     </div>
 </footer>
+
 {% include "chatbot/widget.html" %}
+
 </body>
 </html>
