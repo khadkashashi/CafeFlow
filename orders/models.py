@@ -59,12 +59,15 @@ class Order(models.Model):
     @classmethod
     def start_draft(cls, table, waiter=None, source=None):
         """Front desk clicks 'Start Order' on a table — creates the draft and occupies the table."""
-        order = cls.objects.create(
-            table=table, waiter=waiter, source=source or cls.Source.DINE_IN, status=cls.Status.DRAFT
-        )
+        order = cls.objects.create(table=table, waiter=waiter, source=source or cls.Source.DINE_IN, status=cls.Status.DRAFT)
         if table:
             table.mark_occupied()
+            from reservations.models import Reservation
+            Reservation.objects.filter(
+            table=table, status=Reservation.Status.CONFIRMED).update(status=Reservation.Status.COMPLETED)
+
         return order
+        
 
     def send_to_kitchen(self):
         """Explicitly push a draft order into the kitchen queue. Idempotent — safe to call more than once."""

@@ -35,3 +35,7 @@ class Reservation(models.Model):
         self.save(update_fields=["status"])
         if self.table and self.table.status == Table.Status.RESERVED:
             self.table.mark_available()
+
+    def complete(self):
+        self.status = self.Status.COMPLETED
+        self.save(update_fields=["status"])
