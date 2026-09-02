@@ -127,11 +127,8 @@
         </span>
         CafeFlow
     </a>
-    <div class="nav-links">
-        <a href="{% url 'landing:home' %}">Home</a>
-        <a href="{% url 'landing:menu' %}">Menu</a>
+    
         <a href="{% url 'cart:cart_detail' %}">Cart</a>
-        <a href="{% url 'customers:check_points' %}">Loyalty Points</a>
         {% if user.is_authenticated %}
         <form method="post" action="{% url 'logout' %}" style="display:inline;">
             {% csrf_token %}

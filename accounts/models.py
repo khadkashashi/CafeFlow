@@ -59,3 +59,18 @@ class User(AbstractUser):
     @property
     def is_staff_member(self):
          return self.is_superuser or self.role != self.Role.CUSTOMER
+
+    def get_home_url(self):
+       from django.urls import reverse
+
+       if self.is_superuser:
+         return reverse("reports:dashboard")
+       if self.role == self.Role.WAITER:
+         return reverse("tables:waiter_tables")
+       if self.role == self.Role.CHEF:
+          return reverse("kitchen:dashboard")
+       if self.role == self.Role.FRONT_DESK:
+          return reverse("tables:reception_dashboard")
+       if self.role == self.Role.MANAGER:
+          return reverse("reports:dashboard")
+       return reverse("landing:home")
