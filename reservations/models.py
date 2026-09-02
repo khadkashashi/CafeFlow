@@ -1,6 +1,7 @@
 from django.db import models
 from customers.models import Customer
 from tables.models import Table
+from django.utils import timezone
 
 class Reservation(models.Model):
     class Status(models.TextChoices):
@@ -16,6 +17,9 @@ class Reservation(models.Model):
     guest_count = models.PositiveIntegerField(default=1)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
     created_at = models.DateTimeField(auto_now_add=True)
+    @property
+    def is_upcoming_today(self):
+        return self.status == self.Status.CONFIRMED and self.date == timezone.now().date()
 
     class Meta:
         ordering = ["date", "time"]
@@ -24,11 +28,8 @@ class Reservation(models.Model):
         return f"{self.customer.name} — {self.date} {self.time} ({self.get_status_display()})"
 
     def confirm(self):
-        self.status = self.Status.CONFIRMED
-        self.save(update_fields=["status"])
-        if self.table:
-            self.table.status = Table.Status.RESERVED
-            self.table.save(update_fields=["status"])
+       self.status = self.Status.CONFIRMED
+       self.save(update_fields=["status"])
 
     def cancel(self):
         self.status = self.Status.CANCELLED

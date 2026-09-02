@@ -9,7 +9,8 @@ from menu.models import FoodItem
 from decimal import Decimal, InvalidOperation
 from inventory.services import adjust_inventory
 from django.contrib import messages
-
+from reservations.models import Reservation
+from django.utils import timezone
 # Create your views here.
 
 @role_required(User.Role.FRONT_DESK, User.Role.MANAGER)
@@ -17,10 +18,12 @@ def reception_dashboard(request):
     active_orders = Order.objects.filter(table__isnull=True).exclude(status__in=[Order.Status.COMPLETED, Order.Status.CANCELLED, Order.Status.DRAFT]).select_related("customer").order_by("-created_at")
     pending_bills = Invoice.objects.filter(is_paid=False).select_related("order")
     all_tables = Table.objects.all()
+    todays_reservations = {r.table_id: r.time.strftime("%I:%M %p")for r in Reservation.objects.filter(status=Reservation.Status.CONFIRMED, date=timezone.now().date())}
     context={
         "active_orders": active_orders, 
         "pending_bills": pending_bills, 
-        "tables": all_tables
+        "tables": all_tables,
+        "todays_reservations": todays_reservations,
     }
     return render(request,"tables/reception_dashboard.html",context)
     
