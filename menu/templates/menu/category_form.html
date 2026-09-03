@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>{% if form.instance.pk %}Edit{% else %}Add{% endif %} Item</h3>
+<form method="post" enctype="multipart/form-data" style="max-width: 450px;">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn btn-primary">Save</button>
+</form>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Manage Menu{% endblock %}
+
+{% block content %}
+<h3>Manage Menu</h3>
+<div class="mb-3 d-flex gap-2">
+    <a href="{% url 'menu:add_category' %}" class="btn btn-outline-secondary">Add Category</a>
+    <a href="{% url 'menu:add_food_item' %}" class="btn btn-primary">Add Food Item</a>
+</div>
+
+{% for category in categories %}
+<h5 class="mt-4">{{ category.name }}</h5>
+<table class="table bg-white">
+    <thead><tr><th>Name</th><th>Price</th><th>Available</th><th></th></tr></thead>
+    <tbody>
+        {% for food in category.items.all %}
+        <tr>
+            <td>{{ food.name }}</td>
+            <td>Rs.{{ food.price }}</td>
+            <td>{% if food.is_available %}✅{% else %}❌{% endif %}</td>
+            <td>
+                <a href="{% url 'menu:edit_food_item' food.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                <form method="post" action="{% url 'menu:delete_food_item' food.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-outline-danger">{% if food.is_available %}Disable{% else %}Enable{% endif %}</button>
+                </form>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="text-muted">No items yet.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% empty %}
+<p class="text-muted">No categories yet.</p>
+{% endfor %}
+{% endblock %}

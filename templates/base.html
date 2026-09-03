@@ -142,6 +142,9 @@
            {% elif user.is_authenticated %}
            <span class="cf-user">{{ user.username }} ({{ user.role }})</span>
            {% endif %}
+           {% if user.can_manage_inventory %}
+           <a href="{% url 'menu:menu_manage' %}">Menu</a>
+           {% endif %}
 
             {% if user.is_authenticated %}
             <form method="post" action="{% url 'logout' %}" style="display:inline;">
