@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Reception Dashboard{% endblock %}
+{% load dict_extras %}
 
 {% block content %}
 <h3>Reception Dashboard</h3>
@@ -26,7 +27,7 @@
                     {{ table.get_status_display }}
                 </span>
                  {% if table.id in todays_reservations %}
-                 <div class="badge bg-info text-dark mt-1">Reserved Today</div>
+                 <div class="badge bg-info text-dark mt-1">Reserved {{ todays_reservations|get_item:table.id }}</div>
                  {% endif %}
                 {% if table.status == 'CLEANING' %}
                 <form method="post" action="{% url 'tables:mark_table_clean' table.pk %}" class="mt-2" onclick="event.stopPropagation();">

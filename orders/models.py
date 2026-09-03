@@ -70,13 +70,13 @@ class Order(models.Model):
         
 
     def send_to_kitchen(self):
-        """Explicitly push a draft order into the kitchen queue. Idempotent — safe to call more than once."""
-        from kitchen.models import KitchenOrder
-
-        if self.status == self.Status.DRAFT:
-            self.status = self.Status.PENDING
-            self.save(update_fields=["status"])
-        KitchenOrder.objects.get_or_create(order=self)
+     from kitchen.models import KitchenOrder
+     if self.status == self.Status.DRAFT:
+        self.status = self.Status.PENDING
+        self.save(update_fields=["status"])
+     if self.table and self.table.status != self.table.Status.OCCUPIED:
+        self.table.mark_occupied()
+     KitchenOrder.objects.get_or_create(order=self)
 
 
 class OrderItem(models.Model):

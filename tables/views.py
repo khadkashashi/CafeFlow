@@ -18,7 +18,9 @@ def reception_dashboard(request):
     active_orders = Order.objects.filter(table__isnull=True).exclude(status__in=[Order.Status.COMPLETED, Order.Status.CANCELLED, Order.Status.DRAFT]).select_related("customer").order_by("-created_at")
     pending_bills = Invoice.objects.filter(is_paid=False).select_related("order")
     all_tables = Table.objects.all()
-    todays_reservations = {r.table_id: r.time.strftime("%I:%M %p")for r in Reservation.objects.filter(status=Reservation.Status.CONFIRMED, date=timezone.now().date())}
+    todays_reservations = {
+    r.table_id: r.time.strftime("%I:%M %p")
+    for r in Reservation.objects.filter(status=Reservation.Status.CONFIRMED, date=timezone.now().date())}
     context={
         "active_orders": active_orders, 
         "pending_bills": pending_bills, 
