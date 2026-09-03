@@ -29,6 +29,12 @@
 <span class="text-muted">{{ r.table|default:"—" }}</span>
 {% endif %}
             </td>
+            {% if r.order %}
+<div class="badge bg-info text-dark mt-1">
+    Pre-order: Rs.{{ r.order.grand_total }}
+    {% if r.table %}<a href="{% url 'tables:table_detail' r.table.pk %}" class="text-dark">(view)</a>{% endif %}
+</div>
+{% endif %}
         </tr>
         {% empty %}
         <tr><td colspan="6" class="text-muted">No pending reservations.</td></tr>

@@ -3,9 +3,25 @@
 
 {% block content %}
 <h3>Reserve a Table</h3>
-<form method="post" style="max-width: 400px;">
+<form method="post" style="max-width: 600px;">
     {% csrf_token %}
     {{ form.as_p }}
+
+    <h5 class="mt-4">Pre-order (optional)</h5>
+    <p class="text-muted small">Want your food ready when you arrive? Add items now — this stays as a draft until a waiter sends it to the kitchen on the day.</p>
+
+    <table class="table bg-white">
+        <thead><tr><th>Item</th><th>Qty</th></tr></thead>
+        <tbody>
+            {% for food in food_items %}
+            <tr>
+                <td>{{ food.name }} — Rs.{{ food.price }}</td>
+                <td><input type="number" name="qty_{{ food.id }}" min="0" value="0" class="form-control form-control-sm" style="width:70px;"></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
     <button class="btn btn-primary">Request Reservation</button>
 </form>
 {% endblock %}

@@ -17,6 +17,8 @@ class Reservation(models.Model):
     guest_count = models.PositiveIntegerField(default=1)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
     created_at = models.DateTimeField(auto_now_add=True)
+    order = models.OneToOneField("orders.Order", on_delete=models.SET_NULL, null=True, blank=True, related_name="reservation")
+    
     @property
     def is_upcoming_today(self):
         return self.status == self.Status.CONFIRMED and self.date == timezone.now().date()

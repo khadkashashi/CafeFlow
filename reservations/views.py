@@ -7,14 +7,18 @@ from .forms import ReservationForm
 from .models import Reservation
 from django.shortcuts import get_object_or_404
 from tables.models import Table
+from menu.models import FoodItem
+from orders.models import Order, OrderItem
 # Create your views here.
 
 @login_required
 def make_reservation(request):
+    food_items = FoodItem.objects.filter(is_available=True).select_related("category")
     if request.method == "POST":
         form = ReservationForm(request.POST)
         if form.is_valid():
-            customer, _ = Customer.objects.get_or_create(user=request.user,
+            customer, _ = Customer.objects.get_or_create(
+                user=request.user,
                 defaults={
                     "name": request.user.get_full_name() or request.user.username,
                     "phone": request.user.phone,
@@ -23,12 +27,24 @@ def make_reservation(request):
             )
             reservation = form.save(commit=False)
             reservation.customer = customer
+            # Optional: pre-order food, saved as a draft order attached to this reservation
+            selected_items = [(key.split("_", 1)[1], val) for key, val in request.POST.items()
+                if key.startswith("qty_") and val and int(val) > 0
+            ]
+            if selected_items:
+                order = Order.objects.create(customer=customer, source=Order.Source.DINE_IN, status=Order.Status.DRAFT)
+                for food_id, qty in selected_items:
+                    food = FoodItem.objects.filter(pk=food_id).first()
+                    if food:
+                        OrderItem.objects.create(order=order, food=food, quantity=int(qty))
+                order.recalculate_totals()
+                reservation.order = order
             reservation.save()
             return redirect("reservations:my_reservations")
     else:
         form = ReservationForm()
-    return render(request, "reservations/make_reservation.html", {"form": form})
 
+    return render(request, "reservations/make_reservation.html", {"form": form, "food_items": food_items})
 
 @login_required
 def my_reservations(request):
@@ -53,8 +69,12 @@ def confirm_reservation(request, pk):
     reservation = get_object_or_404(Reservation, pk=pk)
     table_id = request.POST.get("table_id")
     if table_id:
-        reservation.table = Table.objects.filter(pk=table_id).first()
+        table = Table.objects.filter(pk=table_id).first()
+        reservation.table = table
         reservation.save(update_fields=["table"])
+        if reservation.order and table:
+            reservation.order.table = table
+            reservation.order.save(update_fields=["table"])
 
     reservation.confirm()
     return redirect("reservations:reservation_list")
