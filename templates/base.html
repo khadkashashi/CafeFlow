@@ -145,6 +145,9 @@
            {% if user.can_manage_inventory %}
            <a href="{% url 'menu:menu_manage' %}">Menu</a>
            {% endif %}
+           {% if user.can_manage_staff %}
+            <a href="{% url 'tables:table_manage' %}">Manage Tables</a>
+            {% endif %}
 
             {% if user.is_authenticated %}
             <form method="post" action="{% url 'logout' %}" style="display:inline;">

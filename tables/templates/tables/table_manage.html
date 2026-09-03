@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Manage Tables{% endblock %}
+
+{% block content %}
+<h3>Manage Tables</h3>
+<a href="{% url 'tables:add_table' %}" class="btn btn-primary mb-3">Add Table</a>
+
+<table class="table bg-white">
+    <thead><tr><th>Number</th><th>Capacity</th><th>Location</th><th>Status</th><th>QR Code</th><th></th></tr></thead>
+    <tbody>
+        {% for t in tables %}
+        <tr>
+            <td>{{ t.table_number }}</td>
+            <td>{{ t.capacity }}</td>
+            <td>{{ t.location }}</td>
+            <td>{{ t.get_status_display }}</td>
+            <td>{% if t.qr_code %}<a href="{{ t.qr_code.url }}" target="_blank">View</a>{% endif %}</td>
+            <td>
+                <a href="{% url 'tables:edit_table' t.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                {% if t.status == "AVAILABLE" %}
+                <form method="post" action="{% url 'tables:delete_table' t.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-outline-danger">Delete</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-muted">No tables yet.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

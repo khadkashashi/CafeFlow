@@ -16,4 +16,9 @@ urlpatterns = [
     path("table/<int:pk>/bill/", views.table_bill, name="table_bill"),
     path("table/<int:pk>/transfer/", views.transfer_order, name="transfer_order"),
     path("merge/", views.merge_tables, name="merge_tables"),
+    path("manage/", views.table_manage, name="table_manage"),
+    path("manage/add/", views.add_table, name="add_table"),
+    path("manage/<int:pk>/edit/", views.edit_table, name="edit_table"),
+    path("manage/<int:pk>/delete/", views.delete_table, name="delete_table"),
+    
 ]

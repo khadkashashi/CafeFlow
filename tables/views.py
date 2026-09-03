@@ -11,6 +11,8 @@ from inventory.services import adjust_inventory
 from django.contrib import messages
 from reservations.models import Reservation
 from django.utils import timezone
+from .forms import TableForm
+
 # Create your views here.
 
 @role_required(User.Role.FRONT_DESK, User.Role.MANAGER)
@@ -202,3 +204,42 @@ def merge_tables(request):
         return redirect("tables:table_detail", pk=target_table.pk)
 
     return render(request, "tables/merge_tables.html", {"tables": occupied_tables})
+
+@role_required(User.Role.MANAGER)
+def table_manage(request):
+    tables = Table.objects.all()
+    return render(request, "tables/table_manage.html", {"tables": tables})
+
+
+@role_required(User.Role.MANAGER)
+def add_table(request):
+    if request.method == "POST":
+        form = TableForm(request.POST)
+        if form.is_valid():
+            form.save()  # Table.save() auto-generates the QR code, from Milestone 3
+            return redirect("tables:table_manage")
+    else:
+        form = TableForm()
+    return render(request, "tables/table_form.html", {"form": form})
+
+
+@role_required(User.Role.MANAGER)
+def edit_table(request, pk):
+    table = get_object_or_404(Table, pk=pk)
+    if request.method == "POST":
+        form = TableForm(request.POST, instance=table)
+        if form.is_valid():
+            form.save()
+            return redirect("tables:table_manage")
+    else:
+        form = TableForm(instance=table)
+    return render(request, "tables/table_form.html", {"form": form})
+
+
+@role_required(User.Role.MANAGER)
+@require_POST
+def delete_table(request, pk):
+    table = get_object_or_404(Table, pk=pk)
+    if table.status == Table.Status.AVAILABLE and not table.orders.exclude(status__in=[Order.Status.COMPLETED, Order.Status.CANCELLED]).exists():
+        table.delete()
+    return redirect("tables:table_manage")
