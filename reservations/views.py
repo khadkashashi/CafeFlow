@@ -39,9 +39,13 @@ def my_reservations(request):
 
 @role_required(User.Role.FRONT_DESK, User.Role.MANAGER)
 def reservation_list(request):
-    reservations = Reservation.objects.exclude(status=Reservation.Status.CANCELLED).select_related("customer", "table")
-    tables = Table.objects.all()
-    return render(request, "reservations/reservation_list.html", {"reservations": reservations, "tables": tables})
+    from tables.models import Table
+    reservations = Reservation.objects.exclude(status=Reservation.Status.CANCELLED).select_related("customer", "table").order_by("date", "time")
+    for r in reservations:
+        if r.status == Reservation.Status.PENDING:
+            taken_ids = Reservation.objects.filter(date=r.date, status=Reservation.Status.CONFIRMED).exclude(pk=r.pk).values_list("table_id", flat=True)
+            r.available_tables = Table.objects.exclude(pk__in=taken_ids)
+    return render(request, "reservations/reservation_list.html", {"reservations": reservations})
 
 
 @role_required(User.Role.FRONT_DESK, User.Role.MANAGER)
