@@ -3,6 +3,15 @@
 
 {% block content %}
 <h3>Reservations</h3>
+
+<form method="get" class="d-flex gap-2 mb-3" style="max-width: 400px;">
+    <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search by name or phone">
+    <button type="submit" class="btn btn-outline-dark">Search</button>
+    {% if query %}
+    <a href="{% url 'reservations:reservation_list' %}" class="btn btn-outline-secondary">Clear</a>
+    {% endif %}
+</form>
+
 <table class="table bg-white">
     <thead><tr><th>Customer</th><th>Date</th><th>Time</th><th>Guests</th><th>Status</th><th>Assign Table & Confirm</th></tr></thead>
     <tbody>
@@ -37,7 +46,9 @@
 {% endif %}
         </tr>
         {% empty %}
-        <tr><td colspan="6" class="text-muted">No pending reservations.</td></tr>
+        <tr><td colspan="6" class="text-muted">
+            {% if query %}No reservations match "{{ query }}".{% else %}No pending reservations.{% endif %}
+        </td></tr>
         {% endfor %}
     </tbody>
 </table>

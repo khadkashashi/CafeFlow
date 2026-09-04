@@ -10,6 +10,8 @@ from django.shortcuts import get_object_or_404
 from tables.models import Table
 from menu.models import FoodItem
 from orders.models import Order, OrderItem
+from django.db.models import Q
+
 # Create your views here.
 
 @login_required
@@ -57,14 +59,16 @@ def my_reservations(request):
 @role_required(User.Role.FRONT_DESK, User.Role.MANAGER)
 def reservation_list(request):
     from tables.models import Table
-    reservations = Reservation.objects.exclude(status=Reservation.Status.CANCELLED).select_related("customer", "table").order_by("date", "time")
+    query = request.GET.get("q", "").strip()
+    reservations = Reservation.objects.exclude(status=Reservation.Status.CANCELLED).select_related("customer", "table")
+    if query:
+        reservations = reservations.filter( Q(customer__name__icontains=query) | Q(customer__phone__icontains=query))
+    reservations = reservations.order_by("-pk")
     for r in reservations:
         if r.status == Reservation.Status.PENDING:
-            taken_ids = Reservation.objects.filter(
-                date=r.date, status=Reservation.Status.CONFIRMED, table__isnull=False
-            ).exclude(pk=r.pk).values_list("table_id", flat=True)
+            taken_ids = Reservation.objects.filter(date=r.date, status=Reservation.Status.CONFIRMED, table__isnull=False).exclude(pk=r.pk).values_list("table_id", flat=True)
             r.available_tables = Table.objects.exclude(pk__in=taken_ids)
-    return render(request, "reservations/reservation_list.html", {"reservations": reservations})
+    return render(request, "reservations/reservation_list.html", {"reservations": reservations, "query": query})
 
 
 @role_required(User.Role.FRONT_DESK, User.Role.MANAGER)
