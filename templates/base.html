@@ -87,12 +87,42 @@
 
         h1, h2, h3, h4, h5, h6 { font-family: 'Fraunces', serif; color: var(--parchment); }
         .text-muted { color: var(--smoke) !important; }
-    </style>
+        body { display: flex; }
+
+    .cf-sidebar {
+        width: 220px;
+        min-height: 100vh;
+        background: var(--espresso-light);
+        padding: 1.5rem 1rem;
+        position: fixed;
+        top: 0; left: 0; bottom: 0;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+    .cf-sidebar .cf-brand {
+        margin-bottom: 1.5rem;
+    }
+    .cf-sidebar a, .cf-sidebar .cf-link-btn {
+        color: var(--smoke); text-decoration: none; padding: 0.5rem 0.6rem; border-radius: 6px;
+        font-size: 0.85rem; background: none; border: none; text-align: left; width: 100%; cursor: pointer;
+    }
+    .cf-sidebar a:hover, .cf-sidebar .cf-link-btn:hover { background: var(--espresso-lighter); color: var(--copper-bright); }
+    .cf-sidebar .cf-user { color: var(--parchment); font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; padding: 0.5rem 0.6rem; }
+    .cf-sidebar hr { border-color: rgba(140,131,120,0.2); margin: 0.5rem 0; }
+
+    .cf-main { margin-left: 220px; flex: 1; padding: 2rem; }
+
+    @media (max-width: 900px) {
+        body { display: block; }
+        .cf-sidebar { position: static; width: 100%; min-height: auto; flex-direction: row; flex-wrap: wrap; }
+        .cf-main { margin-left: 0; padding: 1.5rem; }
+    }
+</style>
 </head>
 <body>
-    <div class="awning"></div>
-
-    <nav class="cf-nav">
+    <nav class="cf-sidebar">
         <a href="{% url 'landing:home' %}" class="cf-brand">
             <span class="steam-mark">
                 <svg viewBox="0 0 22 30" xmlns="http://www.w3.org/2000/svg">
@@ -103,64 +133,60 @@
             CafeFlow
         </a>
 
-        <div class="cf-links">
-            {% if user.can_manage_orders %}
-            <a href="{% url 'tables:waiter_tables' %}">Tables</a>
-            <a href="{% url 'tables:merge_tables' %}">Merge Tables</a>
-            {% endif %}
-            {% if user.can_access_kitchen %}
-            <a href="{% url 'kitchen:dashboard' %}">Kitchen</a>
-            {% endif %}
-            {% if user.can_bill %}
-            <a href="{% url 'tables:reception_dashboard' %}">Reception</a>
-            <a href="{% url 'reservations:reservation_list' %}">Manage Reservations</a>
-            {% endif %}
-            {% if user.can_view_inventory %}
-            <a href="{% url 'inventory:ingredient_list' %}">Inventory</a>
-            {% endif %}
-            {% if user.can_manage_staff %}
-            <a href="{% url 'employees:employee_list' %}">Staff</a>
-            <a href="{% url 'employees:all_shifts' %}">All Shifts</a>
-            {% endif %}
-            {% if user.can_access_reports %}
-            <a href="{% url 'reports:dashboard' %}">Reports</a>
-            {% endif %}
-            {% if user.is_staff_member %}
-            <a href="{% url 'employees:my_shift' %}">My Shift</a>
-            {% endif %}
-            {% if user.is_authenticated and user.role == "CUSTOMER" %}
-            <a href="{% url 'reservations:my_reservations' %}">Reservations</a>
-            {% endif %}
+        {% if user.can_manage_orders %}
+        <a href="{% url 'tables:waiter_tables' %}">Tables</a>
+        <a href="{% url 'tables:merge_tables' %}">Merge Tables</a>
+        {% endif %}
+        {% if user.can_access_kitchen %}
+        <a href="{% url 'kitchen:dashboard' %}">Kitchen</a>
+        {% endif %}
+        {% if user.can_bill %}
+        <a href="{% url 'tables:reception_dashboard' %}">Reception</a>
+        <a href="{% url 'reservations:reservation_list' %}">Manage Reservations</a>
+        {% endif %}
+        {% if user.can_view_inventory %}
+        <a href="{% url 'inventory:ingredient_list' %}">Inventory</a>
+        {% endif %}
+        {% if user.can_manage_inventory %}
+        <a href="{% url 'menu:menu_manage' %}">Menu</a>
+        {% endif %}
+        {% if user.can_manage_staff %}
+        <a href="{% url 'employees:employee_list' %}">Staff</a>
+        <a href="{% url 'employees:all_shifts' %}">All Shifts</a>
+        <a href="{% url 'tables:table_manage' %}">Manage Tables</a>
+        {% endif %}
+        {% if user.can_access_reports %}
+        <a href="{% url 'reports:dashboard' %}">Reports</a>
+        {% endif %}
+        {% if user.is_staff_member %}
+        <a href="{% url 'employees:my_shift' %}">My Shift</a>
+        {% endif %}
+        {% if user.is_authenticated and user.role == "CUSTOMER" %}
+        <a href="{% url 'reservations:my_reservations' %}">Reservations</a>
+        {% endif %}
 
-            {% if user.is_authenticated and user.role == "CUSTOMER" %}
-            <a href="{% url 'customers:my_account' %}" class="cf-user d-flex align-items-center gap-2">
-            {% if user.profile_picture %}
-           <img src="{{ user.profile_picture.url }}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;">
-           {% endif %}
-           {{ user.username }} ({{ user.role }})
-           </a>
-           {% elif user.is_authenticated %}
-           <span class="cf-user">{{ user.username }} ({{ user.role }})</span>
-           {% endif %}
-           {% if user.can_manage_inventory %}
-           <a href="{% url 'menu:menu_manage' %}">Menu</a>
-           {% endif %}
-           {% if user.can_manage_staff %}
-            <a href="{% url 'tables:table_manage' %}">Manage Tables</a>
-            {% endif %}
+        <hr>
 
-            {% if user.is_authenticated %}
-            <form method="post" action="{% url 'logout' %}" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit" class="cf-link-btn">Logout</button>
-            </form>
-            {% else %}
-            <a href="{% url 'login' %}">Login</a>
-            {% endif %}
-        </div>
+        {% if user.is_authenticated and user.role == "CUSTOMER" %}
+        <a href="{% url 'customers:my_account' %}" class="cf-user">
+            {% if user.profile_picture %}<img src="{{ user.profile_picture.url }}" style="width:20px;height:20px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;">{% endif %}
+            {{ user.username }} ({{ user.role }})
+        </a>
+        {% elif user.is_authenticated %}
+        <span class="cf-user">{{ user.username }} ({{ user.role }})</span>
+        {% endif %}
+
+        {% if user.is_authenticated %}
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="cf-link-btn">Logout</button>
+        </form>
+        {% else %}
+        <a href="{% url 'login' %}">Login</a>
+        {% endif %}
     </nav>
 
-    <div class="container">
+    <div class="cf-main">
         {% block content %}{% endblock %}
     </div>
 </body>
