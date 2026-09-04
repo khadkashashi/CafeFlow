@@ -6,43 +6,59 @@
 <h3>Reception Dashboard</h3>
 
 <h5 class="mt-4">Table Status</h5>
-<div class="row">
-    {% for table in tables %}
-    <div class="col-md-2 mb-3">
-        {% if table.status == 'OCCUPIED' %}
-        <a href="{% url 'tables:table_bill' table.pk %}" class="text-decoration-none">
-        {% endif %}
-        <div class="card text-center
-            {% if table.status == 'AVAILABLE' %}border-success
-            {% elif table.status == 'OCCUPIED' %}border-danger
-            {% elif table.status == 'RESERVED' %}border-warning
-            {% else %}border-secondary{% endif %}">
-            <div class="card-body">
-                <h6>Table {{ table.table_number }}</h6>
-                <span class="badge
-                    {% if table.status == 'AVAILABLE' %}bg-success
-                    {% elif table.status == 'OCCUPIED' %}bg-danger
-                    {% elif table.status == 'RESERVED' %}bg-warning
-                    {% else %}bg-secondary{% endif %}">
-                    {{ table.get_status_display }}
-                </span>
-                 {% if table.id in todays_reservations %}
-                 <div class="badge bg-info text-dark mt-1">Reserved {{ todays_reservations|get_item:table.id }}</div>
-                 {% endif %}
-                {% if table.status == 'CLEANING' %}
-                <form method="post" action="{% url 'tables:mark_table_clean' table.pk %}" class="mt-2" onclick="event.stopPropagation();">
-                    {% csrf_token %}
-                    <button class="btn btn-sm btn-outline-secondary">Mark Clean</button>
-                </form>
-                {% endif %}
-            </div>
-        </div>
-        {% if table.status == 'OCCUPIED' %}
-        </a>
-        {% endif %}
-    </div>
+
+<div class="d-flex gap-2 flex-wrap mt-2 mb-3">
+    {% for location, tables_in_location in tables_by_location.items %}
+    <button type="button"
+            class="btn btn-outline-light location-tab {% if forloop.first %}active{% endif %}"
+            data-location-target="rloc-{{ forloop.counter }}"
+            onclick="showLocation('rloc-{{ forloop.counter }}', this)">
+        {{ location }}
+    </button>
     {% endfor %}
 </div>
+
+{% for location, tables_in_location in tables_by_location.items %}
+<div class="location-panel" id="rloc-{{ forloop.counter }}" style="{% if not forloop.first %}display:none;{% endif %}">
+    <div class="row">
+        {% for table in tables_in_location %}
+        <div class="col-md-2 mb-3">
+            {% if table.status == 'OCCUPIED' %}
+            <a href="{% url 'tables:table_bill' table.pk %}" class="text-decoration-none">
+            {% endif %}
+            <div class="card text-center
+                {% if table.status == 'AVAILABLE' %}border-success
+                {% elif table.status == 'OCCUPIED' %}border-danger
+                {% elif table.status == 'RESERVED' %}border-warning
+                {% else %}border-secondary{% endif %}">
+                <div class="card-body">
+                    <h6>Table {{ table.table_number }}</h6>
+                    <span class="badge
+                        {% if table.status == 'AVAILABLE' %}bg-success
+                        {% elif table.status == 'OCCUPIED' %}bg-danger
+                        {% elif table.status == 'RESERVED' %}bg-warning
+                        {% else %}bg-secondary{% endif %}">
+                        {{ table.get_status_display }}
+                    </span>
+                     {% if table.id in todays_reservations %}
+                     <div class="badge bg-info text-dark mt-1">Reserved {{ todays_reservations|get_item:table.id }}</div>
+                     {% endif %}
+                    {% if table.status == 'CLEANING' %}
+                    <form method="post" action="{% url 'tables:mark_table_clean' table.pk %}" class="mt-2" onclick="event.stopPropagation();">
+                        {% csrf_token %}
+                        <button class="btn btn-sm btn-outline-secondary">Mark Clean</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% if table.status == 'OCCUPIED' %}
+            </a>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endfor %}
 
 <h5 class="mt-4">Online &amp; Pickup Orders — Ready for Billing</h5>
 <table class="table bg-white">
@@ -86,4 +102,18 @@
         {% endfor %}
     </tbody>
 </table>
+
+<script>
+function showLocation(targetId, btn) {
+    document.querySelectorAll('.location-panel').forEach(function(panel) {
+        panel.style.display = 'none';
+    });
+    document.getElementById(targetId).style.display = '';
+
+    document.querySelectorAll('.location-tab').forEach(function(tab) {
+        tab.classList.remove('active');
+    });
+    btn.classList.add('active');
+}
+</script>
 {% endblock %}

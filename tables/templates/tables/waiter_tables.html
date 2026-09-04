@@ -3,31 +3,61 @@
 {% load dict_extras %}
 {% block content %}
 <h3>Tables</h3>
-<div class="row mt-4">
-    {% for table in tables %}
-    <div class="col-md-2 mb-3">
-        <a href="{% url 'tables:table_detail' table.pk %}" class="text-decoration-none">
-            <div class="card text-center
-                {% if table.status == 'AVAILABLE' %}border-success
-                {% elif table.status == 'OCCUPIED' %}border-danger
-                {% elif table.status == 'RESERVED' %}border-warning
-                {% else %}border-secondary{% endif %}">
-                <div class="card-body">
-                    <h6>Table {{ table.table_number }}</h6>
-                    <span class="badge
-                        {% if table.status == 'AVAILABLE' %}bg-success
-                        {% elif table.status == 'OCCUPIED' %}bg-danger
-                        {% elif table.status == 'RESERVED' %}bg-warning
-                        {% else %}bg-secondary{% endif %}">
-                        {{ table.get_status_display }}
-                    </span>
-                    {% if table.id in todays_reservations %}
-                   <div class="badge bg-info text-dark mt-1">Reserved {{ todays_reservations|get_item:table.id }}</div>
-                   {% endif %}
-                </div>
-            </div>
-        </a>
-    </div>
+
+<div class="d-flex gap-2 flex-wrap mt-3 mb-4">
+    {% for location, tables_in_location in tables_by_location.items %}
+    <button type="button"
+            class="btn btn-outline-light location-tab {% if forloop.first %}active{% endif %}"
+            data-location-target="loc-{{ forloop.counter }}"
+            onclick="showLocation('loc-{{ forloop.counter }}', this)">
+        {{ location }}
+    </button>
     {% endfor %}
 </div>
+
+{% for location, tables_in_location in tables_by_location.items %}
+<div class="location-panel" id="loc-{{ forloop.counter }}" style="{% if not forloop.first %}display:none;{% endif %}">
+    <div class="row">
+        {% for table in tables_in_location %}
+        <div class="col-md-2 mb-3">
+            <a href="{% url 'tables:table_detail' table.pk %}" class="text-decoration-none">
+                <div class="card text-center
+                    {% if table.status == 'AVAILABLE' %}border-success
+                    {% elif table.status == 'OCCUPIED' %}border-danger
+                    {% elif table.status == 'RESERVED' %}border-warning
+                    {% else %}border-secondary{% endif %}">
+                    <div class="card-body">
+                        <h6>Table {{ table.table_number }}</h6>
+                        <span class="badge
+                            {% if table.status == 'AVAILABLE' %}bg-success
+                            {% elif table.status == 'OCCUPIED' %}bg-danger
+                            {% elif table.status == 'RESERVED' %}bg-warning
+                            {% else %}bg-secondary{% endif %}">
+                            {{ table.get_status_display }}
+                        </span>
+                        {% if table.id in todays_reservations %}
+                       <div class="badge bg-info text-dark mt-1">Reserved {{ todays_reservations|get_item:table.id }}</div>
+                       {% endif %}
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endfor %}
+
+<script>
+function showLocation(targetId, btn) {
+    document.querySelectorAll('.location-panel').forEach(function(panel) {
+        panel.style.display = 'none';
+    });
+    document.getElementById(targetId).style.display = '';
+
+    document.querySelectorAll('.location-tab').forEach(function(tab) {
+        tab.classList.remove('active');
+    });
+    btn.classList.add('active');
+}
+</script>
 {% endblock %}

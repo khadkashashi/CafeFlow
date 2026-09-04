@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
+from django.contrib import messages
 from accounts.decorators import role_required
 from accounts.models import User
 from customers.models import Customer
@@ -59,7 +60,9 @@ def reservation_list(request):
     reservations = Reservation.objects.exclude(status=Reservation.Status.CANCELLED).select_related("customer", "table").order_by("date", "time")
     for r in reservations:
         if r.status == Reservation.Status.PENDING:
-            taken_ids = Reservation.objects.filter(date=r.date, status=Reservation.Status.CONFIRMED).exclude(pk=r.pk).values_list("table_id", flat=True)
+            taken_ids = Reservation.objects.filter(
+                date=r.date, status=Reservation.Status.CONFIRMED, table__isnull=False
+            ).exclude(pk=r.pk).values_list("table_id", flat=True)
             r.available_tables = Table.objects.exclude(pk__in=taken_ids)
     return render(request, "reservations/reservation_list.html", {"reservations": reservations})
 
@@ -68,13 +71,16 @@ def reservation_list(request):
 def confirm_reservation(request, pk):
     reservation = get_object_or_404(Reservation, pk=pk)
     table_id = request.POST.get("table_id")
-    if table_id:
-        table = Table.objects.filter(pk=table_id).first()
-        reservation.table = table
-        reservation.save(update_fields=["table"])
-        if reservation.order and table:
-            reservation.order.table = table
-            reservation.order.save(update_fields=["table"])
+    if not table_id:
+        messages.error(request, "Select a table before confirming.")
+        return redirect("reservations:reservation_list")
+
+    table = Table.objects.filter(pk=table_id).first()
+    reservation.table = table
+    reservation.save(update_fields=["table"])
+    if reservation.order and table:
+        reservation.order.table = table
+        reservation.order.save(update_fields=["table"])
 
     reservation.confirm()
     return redirect("reservations:reservation_list")
