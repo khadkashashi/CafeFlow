@@ -20,8 +20,8 @@ def cart_add(request, food_id):
     food = get_object_or_404(FoodItem, id=food_id, is_available=True)
     quantity = int(request.POST.get("quantity", 1))
     cart.add(food.id, quantity)
-    return redirect("cart:cart_detail")
-
+    next_url = request.POST.get("next") or request.META.get("HTTP_REFERER") or "menu:menu_list"
+    return redirect(next_url)
 
 @require_POST
 def cart_remove(request, food_id):
