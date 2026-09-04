@@ -6,6 +6,9 @@
 
 <h3>Tables</h3>
 <div class="row mt-4">
+    {% for location, tables in tables_by_location.items %}
+    <h6 class="mt-4" style="color: var(--copper-bright);">{{ location }}</h6>
+    <div class="row">
     {% for table in tables %}
     <div class="col-md-2 mb-3">
         <a href="{% url 'tables:table_detail' table.pk %}" class="text-decoration-none">

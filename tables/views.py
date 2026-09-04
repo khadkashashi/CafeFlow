@@ -19,7 +19,10 @@ from .forms import TableForm
 def reception_dashboard(request):
     active_orders = Order.objects.filter(table__isnull=True).exclude(status__in=[Order.Status.COMPLETED, Order.Status.CANCELLED, Order.Status.DRAFT]).select_related("customer").order_by("-created_at")
     pending_bills = Invoice.objects.filter(is_paid=False).select_related("order")
-    all_tables = Table.objects.all()
+    all_tables = Table.objects.all().order_by("location", "table_number")
+    tables_by_location = {}
+    for t in all_tables:
+        tables_by_location.setdefault(t.location or "Unassigned", []).append(t)
     todays_reservations = {
     r.table_id: r.time.strftime("%I:%M %p")
     for r in Reservation.objects.filter(status=Reservation.Status.CONFIRMED, date=timezone.now().date())}
@@ -28,6 +31,7 @@ def reception_dashboard(request):
         "pending_bills": pending_bills, 
         "tables": all_tables,
         "todays_reservations": todays_reservations,
+        "tables_by_location": tables_by_location,
     }
     return render(request,"tables/reception_dashboard.html",context)
     
