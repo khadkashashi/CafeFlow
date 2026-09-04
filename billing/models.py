@@ -41,6 +41,8 @@ class Invoice(models.Model):
               self.order.table.save(update_fields=["status"])
            if self.order.customer:
               self.order.customer.add_loyalty_points(self.grand_total)
+           if hasattr(self.order, "reservation"):
+              self.order.reservation.complete()
 
 
     

@@ -131,11 +131,13 @@ def apply_discount(request, pk):
         order.recalculate_totals()
 
     return redirect("billing:order_bill", order_pk=order.pk)
+
 @role_required(User.Role.WAITER, User.Role.MANAGER)
 def waiter_tables(request):
+    from reservations.models import Reservation
     tables = Table.objects.all()
-    return render(request, "tables/waiter_tables.html", {"tables": tables})
-
+    todays_reservations = { r.table_id: r.time.strftime("%I:%M %p") for r in Reservation.objects.filter(status=Reservation.Status.CONFIRMED, date=timezone.now().date())}
+    return render(request, "tables/waiter_tables.html", {"tables": tables, "todays_reservations": todays_reservations})
 
 @role_required(User.Role.FRONT_DESK, User.Role.MANAGER)
 def table_bill(request, pk):

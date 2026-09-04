@@ -2,6 +2,8 @@
 {% block title %}Tables{% endblock %}
 
 {% block content %}
+{% load dict_extras %}
+
 <h3>Tables</h3>
 <div class="row mt-4">
     {% for table in tables %}
@@ -21,6 +23,9 @@
                         {% else %}bg-secondary{% endif %}">
                         {{ table.get_status_display }}
                     </span>
+                    {% if table.id in todays_reservations %}
+                    <div class="badge bg-info text-dark mt-1">Reserved {{ todays_reservations|get_item:table.id }}</div>
+                    {% endif %}
                 </div>
             </div>
         </a>
