@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'cart',
     'landing',
     'chatbot',
+    "expenses",
 ]
 
 MIDDLEWARE = [

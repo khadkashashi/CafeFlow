@@ -42,6 +42,7 @@ urlpatterns = [
     path("inventory/", include("inventory.urls")),
     path("chatbot/", include("chatbot.urls")),
     path("menu/", include("menu.urls")),
+    path("expenses/", include("expenses.urls")),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
