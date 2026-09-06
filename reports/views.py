@@ -8,6 +8,9 @@ from accounts.models import User
 from inventory.models import Ingredient
 from orders.models import Order, OrderItem
 from payments.models import Payment
+from expenses.models import Expense
+from inventory.models import Purchase
+
 
 # Create your views here.
 @role_required(User.Role.MANAGER)
@@ -29,3 +32,22 @@ def reports_dashboard(request):
         "payment_breakdown":payment_breakdown
     }
     return render(request,"reports/dashboard.html",context)
+
+@role_required(User.Role.MANAGER)
+def profit_loss(request):
+    today = timezone.now().date()
+    month_start = today.replace(day=1)
+    revenue = Order.objects.filter(created_at__date__gte=month_start, status=Order.Status.COMPLETED).aggregate(total=Sum("grand_total"))["total"] or 0
+    ingredient_costs = Purchase.objects.filter(date__gte=month_start).aggregate(total=Sum("price"))["total"] or 0
+    other_expenses = Expense.objects.filter(date__gte=month_start).aggregate(total=Sum("amount"))["total"] or 0
+    total_costs = ingredient_costs + other_expenses
+    net_profit = revenue - total_costs
+    contexts={
+        "revenue": revenue, 
+        "ingredient_costs": ingredient_costs,
+        "other_expenses": other_expenses,
+        "total_costs": total_costs,
+        "net_profit": net_profit,
+        "month_start": month_start,     
+    }
+    return render(request, "reports/profit_loss.html", contexts)

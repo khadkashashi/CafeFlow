@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}CafeFlow{% endblock %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,450;0,9..144,600;1,9..144,450&family=Work+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,450;0,9..144,600;1,9..144,450&family=Work+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -27,7 +30,9 @@
             font-family: 'Work Sans', sans-serif;
         }
 
-        a { color: var(--copper-bright); }
+        a {
+            color: var(--copper-bright);
+        }
 
         .awning {
             height: 26px;
@@ -46,81 +51,248 @@
             gap: 0.75rem;
             margin-bottom: 2rem;
         }
-        .cf-brand {
-            display: flex; align-items: center; gap: 0.5rem;
-            font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 600;
-            color: var(--parchment); text-decoration: none;
-        }
-        .steam-mark { width: 18px; height: 24px; }
-        .steam-mark svg { width: 100%; height: 100%; }
-        .steam-mark path { fill: none; stroke: var(--copper-bright); stroke-width: 1.4; stroke-linecap: round; }
 
-        .cf-links { display: flex; align-items: center; gap: 1.1rem; flex-wrap: wrap; font-size: 0.82rem; }
-        .cf-links a, .cf-links .cf-link-btn {
-            color: var(--smoke); text-decoration: none; background: none; border: none;
-            font-family: 'Work Sans', sans-serif; font-size: 0.82rem; padding: 0; cursor: pointer;
+        .cf-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'Fraunces', serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--parchment);
+            text-decoration: none;
         }
-        .cf-links a:hover, .cf-links .cf-link-btn:hover { color: var(--copper-bright); }
-        .cf-user { color: var(--parchment); font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; }
+
+        .steam-mark {
+            width: 18px;
+            height: 24px;
+        }
+
+        .steam-mark svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .steam-mark path {
+            fill: none;
+            stroke: var(--copper-bright);
+            stroke-width: 1.4;
+            stroke-linecap: round;
+        }
+
+        .cf-links {
+            display: flex;
+            align-items: center;
+            gap: 1.1rem;
+            flex-wrap: wrap;
+            font-size: 0.82rem;
+        }
+
+        .cf-links a,
+        .cf-links .cf-link-btn {
+            color: var(--smoke);
+            text-decoration: none;
+            background: none;
+            border: none;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.82rem;
+            padding: 0;
+            cursor: pointer;
+        }
+
+        .cf-links a:hover,
+        .cf-links .cf-link-btn:hover {
+            color: var(--copper-bright);
+        }
+
+        .cf-user {
+            color: var(--parchment);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.78rem;
+        }
 
         /* Bootstrap component overrides so every existing dashboard template stays dark-themed automatically */
-        .table { color: var(--parchment); }
-        .table > :not(caption) > * > * { background: var(--espresso-light); color: var(--parchment); border-color: rgba(140,131,120,0.2); }
-        .bg-white { background: var(--espresso-light) !important; color: var(--parchment); }
-        .card { background: var(--espresso-light); color: var(--parchment); border-color: rgba(140,131,120,0.2); }
-        .form-control, .form-select {
-            background: var(--espresso-lighter) !important; color: var(--parchment) !important;
-            border-color: rgba(140,131,120,0.3);
+        .table {
+            color: var(--parchment);
         }
-        .form-control::placeholder { color: var(--smoke); }
-        .form-control:focus, .form-select:focus { border-color: var(--copper); box-shadow: 0 0 0 0.2rem rgba(193,127,62,0.25); }
-        label, .form-label { color: var(--parchment); }
 
-        .btn-primary { background: var(--copper); border-color: var(--copper); }
-        .btn-primary:hover { background: var(--copper-bright); border-color: var(--copper-bright); }
-        .btn-outline-primary { color: var(--copper-bright); border-color: var(--copper); }
-        .btn-outline-primary:hover { background: var(--copper); color: var(--espresso); }
-        .btn-outline-secondary, .btn-outline-dark { color: var(--parchment); border-color: rgba(140,131,120,0.4); }
-        .btn-outline-secondary:hover, .btn-outline-dark:hover { background: var(--espresso-lighter); color: var(--parchment); }
-        .btn-success { background: var(--burgundy); border-color: var(--burgundy); opacity: 0.95; }
-        .btn-success:hover { opacity: 1; }
+        .table> :not(caption)>*>* {
+            background: var(--espresso-light);
+            color: var(--parchment);
+            border-color: rgba(140, 131, 120, 0.2);
+        }
 
-        h1, h2, h3, h4, h5, h6 { font-family: 'Fraunces', serif; color: var(--parchment); }
-        .text-muted { color: var(--smoke) !important; }
-        body { display: flex; }
+        .bg-white {
+            background: var(--espresso-light) !important;
+            color: var(--parchment);
+        }
 
-    .cf-sidebar {
-        width: 220px;
-        min-height: 100vh;
-        background: var(--espresso-light);
-        padding: 1.5rem 1rem;
-        position: fixed;
-        top: 0; left: 0; bottom: 0;
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column;
-        gap: 0.3rem;
-    }
-    .cf-sidebar .cf-brand {
-        margin-bottom: 1.5rem;
-    }
-    .cf-sidebar a, .cf-sidebar .cf-link-btn {
-        color: var(--smoke); text-decoration: none; padding: 0.5rem 0.6rem; border-radius: 6px;
-        font-size: 0.85rem; background: none; border: none; text-align: left; width: 100%; cursor: pointer;
-    }
-    .cf-sidebar a:hover, .cf-sidebar .cf-link-btn:hover { background: var(--espresso-lighter); color: var(--copper-bright); }
-    .cf-sidebar .cf-user { color: var(--parchment); font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; padding: 0.5rem 0.6rem; }
-    .cf-sidebar hr { border-color: rgba(140,131,120,0.2); margin: 0.5rem 0; }
+        .card {
+            background: var(--espresso-light);
+            color: var(--parchment);
+            border-color: rgba(140, 131, 120, 0.2);
+        }
 
-    .cf-main { margin-left: 220px; flex: 1; padding: 2rem; }
+        .form-control,
+        .form-select {
+            background: var(--espresso-lighter) !important;
+            color: var(--parchment) !important;
+            border-color: rgba(140, 131, 120, 0.3);
+        }
 
-    @media (max-width: 900px) {
-        body { display: block; }
-        .cf-sidebar { position: static; width: 100%; min-height: auto; flex-direction: row; flex-wrap: wrap; }
-        .cf-main { margin-left: 0; padding: 1.5rem; }
-    }
-</style>
+        .form-control::placeholder {
+            color: var(--smoke);
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--copper);
+            box-shadow: 0 0 0 0.2rem rgba(193, 127, 62, 0.25);
+        }
+
+        label,
+        .form-label {
+            color: var(--parchment);
+        }
+
+        .btn-primary {
+            background: var(--copper);
+            border-color: var(--copper);
+        }
+
+        .btn-primary:hover {
+            background: var(--copper-bright);
+            border-color: var(--copper-bright);
+        }
+
+        .btn-outline-primary {
+            color: var(--copper-bright);
+            border-color: var(--copper);
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--copper);
+            color: var(--espresso);
+        }
+
+        .btn-outline-secondary,
+        .btn-outline-dark {
+            color: var(--parchment);
+            border-color: rgba(140, 131, 120, 0.4);
+        }
+
+        .btn-outline-secondary:hover,
+        .btn-outline-dark:hover {
+            background: var(--espresso-lighter);
+            color: var(--parchment);
+        }
+
+        .btn-success {
+            background: var(--burgundy);
+            border-color: var(--burgundy);
+            opacity: 0.95;
+        }
+
+        .btn-success:hover {
+            opacity: 1;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: 'Fraunces', serif;
+            color: var(--parchment);
+        }
+
+        .text-muted {
+            color: var(--smoke) !important;
+        }
+
+        body {
+            display: flex;
+        }
+
+        .cf-sidebar {
+            width: 220px;
+            min-height: 100vh;
+            background: var(--espresso-light);
+            padding: 1.5rem 1rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .cf-sidebar .cf-brand {
+            margin-bottom: 1.5rem;
+        }
+
+        .cf-sidebar a,
+        .cf-sidebar .cf-link-btn {
+            color: var(--smoke);
+            text-decoration: none;
+            padding: 0.5rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            background: none;
+            border: none;
+            text-align: left;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .cf-sidebar a:hover,
+        .cf-sidebar .cf-link-btn:hover {
+            background: var(--espresso-lighter);
+            color: var(--copper-bright);
+        }
+
+        .cf-sidebar .cf-user {
+            color: var(--parchment);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.75rem;
+            padding: 0.5rem 0.6rem;
+        }
+
+        .cf-sidebar hr {
+            border-color: rgba(140, 131, 120, 0.2);
+            margin: 0.5rem 0;
+        }
+
+        .cf-main {
+            margin-left: 220px;
+            flex: 1;
+            padding: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            body {
+                display: block;
+            }
+
+            .cf-sidebar {
+                position: static;
+                width: 100%;
+                min-height: auto;
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+
+            .cf-main {
+                margin-left: 0;
+                padding: 1.5rem;
+            }
+        }
+    </style>
 </head>
+
 <body>
     <nav class="cf-sidebar">
         <a href="{% url 'landing:home' %}" class="cf-brand">
@@ -161,6 +333,15 @@
         {% if user.is_staff_member %}
         <a href="{% url 'employees:my_shift' %}">My Shift</a>
         {% endif %}
+        {% if user.can_bill %}
+        <a href="{% url 'payments:cash_closing' %}">Cash Closing</a>
+        {% endif %}
+        {% if user.can_manage_staff %}
+        <a href="{% url 'expenses:expense_list' %}">Expenses</a>
+        {% endif %}
+        {% if user.can_access_reports %}
+        <a href="{% url 'reports:profit_loss' %}">Profit &amp; Loss</a>
+        {% endif %}
         {% if user.is_authenticated and user.role == "CUSTOMER" %}
         <a href="{% url 'landing:menu' %}">Menu</a>
         <a href="{% url 'reservations:my_reservations' %}">Reservations</a>
@@ -170,7 +351,9 @@
 
         {% if user.is_authenticated and user.role == "CUSTOMER" %}
         <a href="{% url 'customers:my_account' %}" class="cf-user">
-            {% if user.profile_picture %}<img src="{{ user.profile_picture.url }}" style="width:20px;height:20px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;">{% endif %}
+            {% if user.profile_picture %}<img src="{{ user.profile_picture.url }}"
+                style="width:20px;height:20px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;">{%
+            {% endif %}
             {{ user.username }} ({{ user.role }})
         </a>
         {% elif user.is_authenticated %}
@@ -191,4 +374,5 @@
         {% block content %}{% endblock %}
     </div>
 </body>
+
 </html>

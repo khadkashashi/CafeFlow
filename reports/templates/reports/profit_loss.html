@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Profit & Loss{% endblock %}
+
+{% block content %}
+<h3>Profit &amp; Loss - Since {{ month_start }}</h3>
+
+<table class="table bg-white" style="max-width: 500px;">
+    <tr><td>Revenue</td><td>Rs.{{ revenue }}</td></tr>
+    <tr><td>Ingredient Purchases</td><td>-Rs.{{ ingredient_costs }}</td></tr>
+    <tr><td>Other Expenses</td><td>-Rs.{{ other_expenses }}</td></tr>
+    <tr><th>Net Profit</th><th class="{% if net_profit < 0 %}text-danger{% endif %}">Rs.{{ net_profit }}</th></tr>
+</table>
+{% endblock %}
