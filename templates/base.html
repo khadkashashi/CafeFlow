@@ -162,6 +162,7 @@
         <a href="{% url 'employees:my_shift' %}">My Shift</a>
         {% endif %}
         {% if user.is_authenticated and user.role == "CUSTOMER" %}
+        <a href="{% url 'landing:menu' %}">Menu</a>
         <a href="{% url 'reservations:my_reservations' %}">Reservations</a>
         {% endif %}
 
