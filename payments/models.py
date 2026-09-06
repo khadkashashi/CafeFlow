@@ -1,7 +1,7 @@
 from django.db import models
 import uuid
 from billing.models import Invoice
-
+from django.conf import settings
 # Create your models here.
 class Payment(models.Model):
     class Method(models.TextChoices):
@@ -44,5 +44,20 @@ class Payment(models.Model):
 
 class InvoicePaymentMixin:
     """Mixin placeholder — actual method lives on Invoice, see billing/models.py update below."""
+
+class CashClosing(models.Model):
+    date = models.DateField(unique=True)
+    expected_cash = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    counted_cash = models.DecimalField(max_digits=10, decimal_places=2)
+    notes = models.CharField(max_length=255, blank=True)
+    closed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
+    closed_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def difference(self):
+        return self.counted_cash - self.expected_cash
+
+    def __str__(self):
+        return f"Cash closing {self.date} — diff Rs.{self.difference}"
 
 

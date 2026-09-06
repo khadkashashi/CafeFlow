@@ -7,4 +7,5 @@ urlpatterns = [
     path("invoice/<int:invoice_pk>/redeem/", views.redeem_points, name="redeem_points"),
     path("khalti/initiate/<int:order_pk>/", views.khalti_initiate, name="khalti_initiate"),
     path("khalti/callback/<int:order_pk>/", views.khalti_callback, name="khalti_callback"),
+    path("cash-closing/", views.cash_closing, name="cash_closing"),
 ]

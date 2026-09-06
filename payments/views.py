@@ -12,8 +12,10 @@ from django.urls import reverse
 from notifications.models import Notification
 from accounts.models import User
 from tables.models import Table
-
-
+from datetime import date as date_cls
+from .models import CashClosing
+from accounts.decorators import role_required
+from django.db.models import Sum
 
 @login_required
 def payment_screen(request, invoice_pk):
@@ -147,3 +149,22 @@ def khalti_callback(request, order_pk):
             order.table.mark_available()
 
     return render(request, "payments/khalti_result.html", {"order": order, "payment": payment})
+
+@role_required(User.Role.FRONT_DESK, User.Role.MANAGER)
+def cash_closing(request):
+    today = date_cls.today()
+    existing = CashClosing.objects.filter(date=today).first()
+    expected_cash = ( Payment.objects.filter( payment_method=Payment.Method.CASH, status=Payment.Status.SUCCESS, paid_at__date=today ).aggregate(total=Sum("amount"))["total"] or Decimal("0.00"))
+    if request.method == "POST" and not existing:
+        counted = Decimal(request.POST.get("counted_cash", "0"))
+        notes = request.POST.get("notes", "")
+        CashClosing.objects.create(date=today, expected_cash=expected_cash, counted_cash=counted, notes=notes, closed_by=request.user)
+        return redirect("payments:cash_closing")
+    recent = CashClosing.objects.order_by("-date")[:14]
+    context={
+        "expected_cash": expected_cash, 
+        "existing": existing, 
+        "recent": recent,
+    }
+
+    return render(request, "payments/cash_closing.html", context)
