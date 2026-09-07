@@ -68,8 +68,8 @@ def checkout(request):
                 return redirect("payments:khalti_initiate", order_pk=order.pk)
             order.send_to_kitchen()
             return redirect("orders:track_order", pk=order.pk)
-        else:
-         form = CheckoutForm(initial={
+    else:
+        form = CheckoutForm(initial={
             "contact_name": request.user.get_full_name() or request.user.username,
             "contact_phone": request.user.phone,
         })
