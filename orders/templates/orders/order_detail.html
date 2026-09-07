@@ -2,8 +2,14 @@
 {% block title %}Order #{{ order.pk }}{% endblock %}
 
 {% block content %}
+{% if messages %}
+{% for m in messages %}<div class="alert alert-danger">{{ m }}</div>{% endfor %}
+{% endif %}
+
 <h3>Order #{{ order.pk }} — {{ order.get_status_display }}</h3>
-<p><strong>Table:</strong> {{ order.table }}</p>
+<p><strong>Table:</strong> {{ order.table|default:"—" }}</p>
+
+<a href="{% url 'orders:track_order' order.pk %}" class="btn btn-outline-primary mb-3">Track Order</a>
 
 <table class="table table-bordered bg-white">
     <thead>
@@ -19,15 +25,13 @@
         </tr>
         {% endfor %}
     </tbody>
+</table>
+
 <p><strong>Subtotal:</strong> Rs.{{ order.subtotal }}</p>
 <p><strong>Tax:</strong> Rs.{{ order.tax }}</p>
 <p><strong>Grand Total:</strong> Rs.{{ order.grand_total }}</p>
-</table>
+
 {% if order.status == "COMPLETED" and user.is_authenticated and order.customer.user == user and not order.review %}
 <a href="{% url 'landing:leave_review' order.pk %}" class="btn btn-outline-primary mt-3">Leave a Review</a>
-<a href="{% url 'orders:track_order' order.pk %}" class="btn btn-outline-primary">Track Order</a>
-{% if messages %}
-{% for m in messages %}<div class="alert alert-danger">{{ m }}</div>{% endfor %}
-{% endif %}
 {% endif %}
 {% endblock %}

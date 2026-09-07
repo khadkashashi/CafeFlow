@@ -67,9 +67,9 @@ def checkout(request):
             if form.cleaned_data["payment_method"] == "KHALTI" and not table:
                 return redirect("payments:khalti_initiate", order_pk=order.pk)
             order.send_to_kitchen()
-            return redirect("orders:order_detail", pk=order.pk)
-    else:
-        form = CheckoutForm(initial={
+            return redirect("orders:track_order", pk=order.pk)
+        else:
+         form = CheckoutForm(initial={
             "contact_name": request.user.get_full_name() or request.user.username,
             "contact_phone": request.user.phone,
         })
