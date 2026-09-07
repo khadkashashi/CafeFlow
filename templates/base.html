@@ -352,7 +352,7 @@
         {% if user.is_authenticated and user.role == "CUSTOMER" %}
         <a href="{% url 'customers:my_account' %}" class="cf-user">
             {% if user.profile_picture %}<img src="{{ user.profile_picture.url }}"
-                style="width:20px;height:20px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;">{%
+                style="width:20px;height:20px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;">
             {% endif %}
             {{ user.username }} ({{ user.role }})
         </a>

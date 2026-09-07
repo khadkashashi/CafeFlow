@@ -6,28 +6,29 @@ from orders.models import Order
 from .models import Customer
 from django.conf import settings
 from django.contrib import messages
+from .forms import CustomerProfileForm
+
 
 @role_required(User.Role.CUSTOMER)
 def my_account(request):
-    customer, _ = Customer.objects.get_or_create(user=request.user,
+    customer, _ = Customer.objects.get_or_create(
+        user=request.user,
         defaults={
             "name": request.user.get_full_name() or request.user.username,
-            "phone": None,
+            "phone": request.user.phone,
             "email": request.user.email,
         },
     )
     if request.method == "POST":
-        phone = request.POST.get("phone")
-        if Customer.objects.filter(phone=phone).exclude(pk=customer.pk).exists():
-            messages.error(request, "This phone number is already associated with another account.")
-        else:
-            customer.phone = phone
-            customer.save()
-            messages.success(request, "Account updated successfully!")
+        form = CustomerProfileForm(request.POST, instance=customer)
+        if form.is_valid():
+            form.save()
             return redirect("customers:my_account")
+    else:
+        form = CustomerProfileForm(instance=customer)
     orders = Order.objects.filter(customer=customer).order_by("-created_at")[:10]
     points_value = customer.loyalty_points * settings.LOYALTY_POINT_VALUE
-    return render(request, "customers/my_account.html", {"customer": customer, "orders": orders, "points_value": points_value})
+    return render(request, "customers/my_account.html", {"customer": customer, "orders": orders, "points_value": points_value, "form": form})
 
 
 def check_points(request):
@@ -39,4 +40,8 @@ def check_points(request):
         searched = True
         customer = Customer.objects.filter(phone=phone).first()
 
-    return render(request, "customers/check_points.html", {"customer": customer, "searched": searched})
+    return render(
+        request,
+        "customers/check_points.html",
+        {"customer": customer, "searched": searched},
+    )
