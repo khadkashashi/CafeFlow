@@ -12,8 +12,24 @@ from datetime import timedelta
 
 @role_required(User.Role.MANAGER)
 def employee_list(request):
+    status_filter = request.GET.get("status", "active")
+    position_filter = request.GET.get("position", "")
     employees = Employee.objects.select_related("user").all()
-    return render(request, "employees/employee_list.html", {"employees": employees})
+    if status_filter == "active":
+        employees = employees.filter(is_active=True)
+    elif status_filter == "inactive":
+        employees = employees.filter(is_active=False)
+    # status_filter == "all" → no filtering
+    if position_filter:
+        employees = employees.filter(position__iexact=position_filter)
+    positions = Employee.objects.values_list("position", flat=True).distinct().order_by("position")
+    context={
+            "employees": employees,
+            "status_filter": status_filter,
+            "position_filter": position_filter, 
+            "positions": positions
+    }
+    return render(request, "employees/employee_list.html",context)
 
 
 @role_required(User.Role.MANAGER)
@@ -93,8 +109,12 @@ def clock_out(request):
 @role_required(User.Role.MANAGER)
 def all_shifts(request):
     filter_choice = request.GET.get("range", "today")
+    include_inactive = request.GET.get("include_inactive") == "1"
     today = timezone.now().date()
     logs = ShiftLog.objects.select_related("employee__user")
+    if not include_inactive:
+        logs = logs.filter(employee__is_active=True)
+
     if filter_choice == "today":
         logs = logs.filter(date=today)
     elif filter_choice == "yesterday":
@@ -106,4 +126,11 @@ def all_shifts(request):
         if custom_date:
             logs = logs.filter(date=custom_date)
     logs = logs.order_by("-date", "employee__user__username")[:200]
-    return render(request, "employees/all_shifts.html", {"logs": logs, "filter_choice": filter_choice, "custom_date": request.GET.get("date", "")})
+    context={
+        "logs": logs,
+        "filter_choice": filter_choice,
+        "custom_date": request.GET.get("date", ""),
+        "include_inactive": include_inactive,
+    }
+
+    return render(request, "employees/all_shifts.html", context)

@@ -6,6 +6,22 @@
 {% if messages %}{% for m in messages %}<div class="alert alert-info">{{ m }}</div>{% endfor %}{% endif %}
 <a href="{% url 'employees:add_employee' %}" class="btn btn-primary mb-3">Add Employee</a>
 
+<div class="d-flex gap-2 mb-3 flex-wrap align-items-center">
+    <a href="?status=active&position={{ position_filter }}" class="btn btn-sm {% if status_filter == 'active' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Active</a>
+    <a href="?status=inactive&position={{ position_filter }}" class="btn btn-sm {% if status_filter == 'inactive' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Inactive</a>
+    <a href="?status=all&position={{ position_filter }}" class="btn btn-sm {% if status_filter == 'all' %}btn-primary{% else %}btn-outline-secondary{% endif %}">All</a>
+
+    <form method="get" class="d-flex gap-2 align-items-center ms-2">
+        <input type="hidden" name="status" value="{{ status_filter }}">
+        <select name="position" class="form-select form-select-sm" style="width:160px;" onchange="this.form.submit()">
+            <option value="">All Positions</option>
+            {% for p in positions %}
+            <option value="{{ p }}" {% if p == position_filter %}selected{% endif %}>{{ p }}</option>
+            {% endfor %}
+        </select>
+    </form>
+</div>
+
 <table class="table bg-white">
     <thead><tr><th>Username</th><th>Role</th><th>Position</th><th>Shift</th><th>Salary</th><th>Active</th><th></th></tr></thead>
     <tbody>
@@ -25,7 +41,7 @@
             </td>
         </tr>
         {% empty %}
-        <tr><td colspan="7" class="text-muted">No employees yet.</td></tr>
+        <tr><td colspan="7" class="text-muted">No employees match this filter.</td></tr>
         {% endfor %}
     </tbody>
 </table>

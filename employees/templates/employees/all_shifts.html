@@ -15,6 +15,9 @@
         <input type="date" name="date" value="{{ custom_date }}" class="form-control form-control-sm" style="width:160px;">
         <button class="btn btn-sm {% if filter_choice == 'custom' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Pick Date</button>
     </form>
+    <a href="?range={{ filter_choice }}&include_inactive={% if include_inactive %}0{% else %}1{% endif %}" class="btn btn-sm {% if include_inactive %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+        {% if include_inactive %}Showing All Staff{% else %}Active Staff Only{% endif %}
+    </a>
 </div>
 
 <table class="table bg-white">
