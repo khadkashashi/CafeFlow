@@ -27,7 +27,7 @@
 <form method="post" action="{% url 'reservations:confirm_reservation' r.pk %}" class="d-flex gap-2">
     {% csrf_token %}
     <select name="table_id" class="form-select form-select-sm" style="width:120px;">
-        <option value="">— Table —</option>
+        <option value="">- Table -</option>
         {% for t in r.available_tables %}
         <option value="{{ t.pk }}">Table {{ t.table_number }}</option>
         {% endfor %}

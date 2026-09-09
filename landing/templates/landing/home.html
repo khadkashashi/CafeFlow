@@ -190,7 +190,7 @@
     <div class="hero-copy">
         <span class="eyebrow">Butwal · Est. 2026</span>
         <h1>A slow morning,<br><em>brewed</em> right.</h1>
-        <p class="lead">Small-batch coffee, made-from-scratch food, and a room built for lingering. Order ahead, dine in, or scan the table QR — one kitchen, same care, either way.</p>
+        <p class="lead">Small-batch coffee, made-from-scratch food, and a room built for lingering. Order ahead, dine in, or scan the table QR - one kitchen, same care, either way.</p>
         <div class="hero-actions">
             <a href="{% url 'landing:menu' %}" class="btn-primary">Order Online</a>
             <a href="{% url 'reservations:make_reservation' %}" class="btn-ghost">Reserve a Table</a>
@@ -220,13 +220,13 @@
 <section>
     <div class="section-head">
         <h2>Ordering Online Takes a Minute</h2>
-        <p>Same kitchen as walking in — just skip the line.</p>
+        <p>Same kitchen as walking in - just skip the line.</p>
     </div>
     <div class="flow-strip">
         <div class="flow-step">
             <div class="num">01</div>
             <h3>Browse the Menu</h3>
-            <p>See what's fresh today, with real photos and prices — no guessing.</p>
+            <p>See what's fresh today, with real photos and prices - no guessing.</p>
             <a href="{% url 'landing:menu' %}" class="step-link">View Menu →</a>
         </div>
         <div class="flow-step">
@@ -238,7 +238,7 @@
         <div class="flow-step">
             <div class="num">03</div>
             <h3>Checkout & Pay</h3>
-            <p>Pickup or delivery, pay with Khalti or cash — your choice.</p>
+            <p>Pickup or delivery, pay with Khalti or cash - your choice.</p>
         </div>
         <div class="flow-step">
             <div class="num">04</div>
@@ -251,7 +251,7 @@
 <section id="today">
     <div class="section-head">
         <h2>Today's Pour</h2>
-        <p>A few things worth ordering twice — picked fresh from the kitchen this morning.</p>
+        <p>A few things worth ordering twice - picked fresh from the kitchen this morning.</p>
     </div>
     <div class="pour-grid">
         {% for item in featured %}
@@ -271,7 +271,7 @@
             </div>
         </div>
         {% empty %}
-        <div class="pour-card"><p style="color:var(--smoke);">The menu's warming up — check back shortly.</p></div>
+        <div class="pour-card"><p style="color:var(--smoke);">The menu's warming up - check back shortly.</p></div>
         {% endfor %}
     </div>
 </section>
@@ -300,7 +300,7 @@
         <span class="eyebrow">The Room</span>
         <h2>Built for people who linger.</h2>
         <p>CafeFlow started as a single espresso bar and grew into a full kitchen without losing the thing that mattered: a room where the coffee's good enough that you stay for a second cup.</p>
-        <p>Every order — whether you're at a table, ordering ahead online, or scanning the QR code in front of you — goes through the same kitchen, at the same pace, with the same care.</p>
+        <p>Every order - whether you're at a table, ordering ahead online, or scanning the QR code in front of you - goes through the same kitchen, at the same pace, with the same care.</p>
     </div>
 </section>
 
@@ -327,8 +327,11 @@
         <a href="{% url 'landing:menu' %}">Browse Menu</a>
         <a href="{% url 'cart:cart_detail' %}">Your Cart</a>
         <a href="{% url 'reservations:make_reservation' %}">Reserve a Table</a>
-        <a href="{% url 'customers:check_points' %}">Check Loyalty Points</a>
+    </div>
+    <div class ="col">
+        <h4>Review & Loyalty Points</h4>
         <a href="{% url 'landing:public_review' %}">Leave a Review</a>
+        <a href="{% url 'customers:check_points' %}">Check Loyalty Points</a>
     </div>
     <div class="col">
         <h4>Staff</h4>

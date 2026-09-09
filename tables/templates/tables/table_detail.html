@@ -254,7 +254,7 @@
                 <button class="btn-gold">Send to Kitchen</button>
             </form>
             {% elif order.status != "DRAFT" %}
-            <p class="info-note mt-3">Sent to kitchen — new items added above go straight through.</p>
+            <p class="info-note mt-3">Sent to kitchen - new items added above go straight through.</p>
             {% endif %}
 
             {% if user.can_bill and order.status != "DRAFT" and order.status != "COMPLETED" %}

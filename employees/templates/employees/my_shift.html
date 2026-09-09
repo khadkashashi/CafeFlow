@@ -8,7 +8,7 @@
 <p>Clocked in at {{ today_log.clock_in }}</p>
 <form method="post" action="{% url 'employees:clock_out' %}">{% csrf_token %}<button class="btn btn-danger">Clock Out</button></form>
 {% elif today_log.clock_out %}
-<p>Today's shift complete — {{ today_log.hours_worked }} hours worked.</p>
+<p>Today's shift complete - {{ today_log.hours_worked }} hours worked.</p>
 {% else %}
 <form method="post" action="{% url 'employees:clock_in' %}">{% csrf_token %}<button class="btn btn-success">Clock In</button></form>
 {% endif %}

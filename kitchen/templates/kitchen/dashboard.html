@@ -11,7 +11,7 @@
         <div class="card mb-2">
             <div class="card-body">
                 <strong>Order #{{ ticket.order.pk }}</strong>
-                {% if ticket.order.table %}— Table {{ ticket.order.table.table_number }}{% endif %}
+                {% if ticket.order.table %} - Table {{ ticket.order.table.table_number }}{% endif %}
                 <ul class="mb-2">
                     {% for item in ticket.order.items.all %}
                     <li>{{ item.quantity }}x {{ item.food.name }}</li>
@@ -34,7 +34,7 @@
         <div class="card mb-2 border-warning">
             <div class="card-body">
                 <strong>Order #{{ ticket.order.pk }}</strong>
-                {% if ticket.order.table %}— Table {{ ticket.order.table.table_number }}{% endif %}
+                {% if ticket.order.table %} - Table {{ ticket.order.table.table_number }}{% endif %}
                 <ul class="mb-2">
                     {% for item in ticket.order.items.all %}
                     <li>{{ item.quantity }}x {{ item.food.name }}</li>
@@ -58,7 +58,7 @@
         <div class="card mb-2 border-success">
             <div class="card-body">
                 <strong>Order #{{ ticket.order.pk }}</strong>
-                {% if ticket.order.table %}— Table {{ ticket.order.table.table_number }}{% endif %}
+                {% if ticket.order.table %} - Table {{ ticket.order.table.table_number }}{% endif %}
                 <p class="small text-muted mb-0">Completed {{ ticket.completed_at }}</p>
             </div>
         </div>

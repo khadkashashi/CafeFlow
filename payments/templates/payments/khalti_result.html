@@ -9,8 +9,6 @@
     <div class="col-lg-6 mx-auto">
 
         <div class="card p-4">
-
-            <!-- Payment Status -->
             <div class="text-center mb-4">
 
                 {% if payment.status == "SUCCESS" %}
@@ -82,9 +80,6 @@
                 </div>
 
             </div>
-
-
-            <!-- Actions -->
             {% if payment.status == "SUCCESS" %}
 
                 <div class="d-flex gap-2 mt-4">

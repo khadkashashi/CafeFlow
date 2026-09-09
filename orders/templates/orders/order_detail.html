@@ -6,7 +6,7 @@
 {% for m in messages %}<div class="alert alert-danger">{{ m }}</div>{% endfor %}
 {% endif %}
 
-<h3>Order #{{ order.pk }} — {{ order.get_status_display }}</h3>
+<h3>Order #{{ order.pk }} - {{ order.get_status_display }}</h3>
 <p><strong>Table:</strong> {{ order.table|default:"—" }}</p>
 
 <a href="{% url 'orders:track_order' order.pk %}" class="btn btn-outline-primary mb-3">Track Order</a>
