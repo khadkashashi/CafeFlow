@@ -134,3 +134,19 @@ def all_shifts(request):
     }
 
     return render(request, "employees/all_shifts.html", context)
+
+@role_required(User.Role.MANAGER)
+def attendance_today(request):
+    today = timezone.now().date()
+    employees = Employee.objects.filter(is_active=True).select_related("user")
+    todays_logs = {log.employee_id: log for log in ShiftLog.objects.filter(date=today)}
+    present, completed, absent = [], [], []
+    for emp in employees:
+        log = todays_logs.get(emp.id)
+        if not log or not log.clock_in:
+            absent.append(emp)
+        elif log.clock_in and not log.clock_out:
+            present.append((emp, log))
+        else:
+            completed.append((emp, log))
+    return render(request, "employees/attendance_today.html", {"present": present, "completed": completed, "absent": absent, "today": today})

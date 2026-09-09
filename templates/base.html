@@ -325,6 +325,7 @@
         {% if user.can_manage_staff %}
         <a href="{% url 'employees:employee_list' %}">Staff</a>
         <a href="{% url 'employees:all_shifts' %}">All Shifts</a>
+        <a href="{% url 'employees:attendance_today' %}">Attendance</a>
         <a href="{% url 'tables:table_manage' %}">Manage Tables</a>
         {% endif %}
         {% if user.can_access_reports %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Today's Attendance{% endblock %}
+
+{% block content %}
+<h3>Attendance — {{ today }}</h3>
+
+<div class="row mt-4">
+    <div class="col-md-4">
+        <h5>Present <span class="badge bg-success">{{ present|length }}</span></h5>
+        <table class="table table-sm bg-white">
+            <thead><tr><th>Employee</th><th>Shift</th><th>Clocked In</th></tr></thead>
+            <tbody>
+                {% for emp, log in present %}
+                <tr><td>{{ emp.user.username }}</td><td>{{ emp.get_shift_display }}</td><td>{{ log.clock_in|time:"H:i" }}</td></tr>
+                {% empty %}
+                <tr><td colspan="3" class="text-muted">No one currently clocked in.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="col-md-4">
+        <h5>Completed <span class="badge bg-secondary">{{ completed|length }}</span></h5>
+        <table class="table table-sm bg-white">
+            <thead><tr><th>Employee</th><th>Shift</th><th>Hours</th></tr></thead>
+            <tbody>
+                {% for emp, log in completed %}
+                <tr><td>{{ emp.user.username }}</td><td>{{ emp.get_shift_display }}</td><td>{{ log.hours_worked }}</td></tr>
+                {% empty %}
+                <tr><td colspan="3" class="text-muted">No completed shifts yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="col-md-4">
+        <h5>Absent <span class="badge bg-danger">{{ absent|length }}</span></h5>
+        <table class="table table-sm bg-white">
+            <thead><tr><th>Employee</th><th>Expected Shift</th></tr></thead>
+            <tbody>
+                {% for emp in absent %}
+                <tr><td>{{ emp.user.username }}</td><td>{{ emp.get_shift_display }}</td></tr>
+                {% empty %}
+                <tr><td colspan="2" class="text-muted">Everyone's accounted for.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

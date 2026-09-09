@@ -10,4 +10,5 @@ urlpatterns = [
     path("shift/in/", views.clock_in, name="clock_in"),
     path("shift/out/", views.clock_out, name="clock_out"),
     path("shifts/", views.all_shifts, name="all_shifts"),
+    path("attendance/", views.attendance_today, name="attendance_today"),
 ]
