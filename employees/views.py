@@ -7,6 +7,7 @@ from .models import Employee,ShiftLog
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
+from datetime import timedelta
 
 
 @role_required(User.Role.MANAGER)
@@ -91,5 +92,18 @@ def clock_out(request):
 
 @role_required(User.Role.MANAGER)
 def all_shifts(request):
-    logs = ShiftLog.objects.select_related("employee__user").order_by("-date")[:100]
-    return render(request, "employees/all_shifts.html", {"logs": logs})
+    filter_choice = request.GET.get("range", "today")
+    today = timezone.now().date()
+    logs = ShiftLog.objects.select_related("employee__user")
+    if filter_choice == "today":
+        logs = logs.filter(date=today)
+    elif filter_choice == "yesterday":
+        logs = logs.filter(date=today - timedelta(days=1))
+    elif filter_choice == "week":
+        logs = logs.filter(date__gte=today - timedelta(days=7))
+    elif filter_choice == "custom":
+        custom_date = request.GET.get("date")
+        if custom_date:
+            logs = logs.filter(date=custom_date)
+    logs = logs.order_by("-date", "employee__user__username")[:200]
+    return render(request, "employees/all_shifts.html", {"logs": logs, "filter_choice": filter_choice, "custom_date": request.GET.get("date", "")})

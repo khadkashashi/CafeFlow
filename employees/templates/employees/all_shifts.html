@@ -3,11 +3,33 @@
 
 {% block content %}
 <h3>All Staff Shifts</h3>
+
+<div class="d-flex gap-2 mb-3 flex-wrap align-items-center">
+    <a href="?range=today" class="btn btn-sm {% if filter_choice == 'today' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Today</a>
+    <a href="?range=yesterday" class="btn btn-sm {% if filter_choice == 'yesterday' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Yesterday</a>
+    <a href="?range=week" class="btn btn-sm {% if filter_choice == 'week' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Last 7 Days</a>
+    <a href="?range=all" class="btn btn-sm {% if filter_choice == 'all' %}btn-primary{% else %}btn-outline-secondary{% endif %}">All</a>
+
+    <form method="get" class="d-flex gap-2 align-items-center ms-2">
+        <input type="hidden" name="range" value="custom">
+        <input type="date" name="date" value="{{ custom_date }}" class="form-control form-control-sm" style="width:160px;">
+        <button class="btn btn-sm {% if filter_choice == 'custom' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Pick Date</button>
+    </form>
+</div>
+
 <table class="table bg-white">
     <thead><tr><th>Employee</th><th>Date</th><th>In</th><th>Out</th><th>Hours</th></tr></thead>
     <tbody>
         {% for log in logs %}
-        <tr><td>{{ log.employee.user.username }}</td><td>{{ log.date }}</td><td>{{ log.clock_in|default:"—" }}</td><td>{{ log.clock_out|default:"—" }}</td><td>{{ log.hours_worked|default:"—" }}</td></tr>
+        <tr>
+            <td>{{ log.employee.user.username }}</td>
+            <td>{{ log.date }}</td>
+            <td>{{ log.clock_in|default:"—" }}</td>
+            <td>{{ log.clock_out|default:"—" }}</td>
+            <td>{{ log.hours_worked|default:"—" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="text-muted">No shifts logged for this range.</td></tr>
         {% endfor %}
     </tbody>
 </table>
