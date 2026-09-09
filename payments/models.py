@@ -40,18 +40,17 @@ class Payment(models.Model):
     def __str__(self):
         return f"{self.get_payment_method_display()}- Rs.{self.amount} ({self.get_status_display()})"
 
+    def save(self, *args, **kwargs):
+     from django.utils import timezone
 
-def save(self, *args, **kwargs):
-    from django.utils import timezone
-
-    if not self.transaction_id:
+     if not self.transaction_id:
         self.transaction_id = f"TXN-{uuid.uuid4().hex[:10].upper()}"
-    if self.status == self.Status.SUCCESS and not self.paid_at:
+     if self.status == self.Status.SUCCESS and not self.paid_at:
         self.paid_at = timezone.now()
 
-    super().save(*args, **kwargs)
+     super().save(*args, **kwargs)
 
-    if self.payment_method != self.Method.KHALTI:
+     if self.payment_method != self.Method.KHALTI:
         self.invoice.check_fully_paid()
 
 

@@ -43,3 +43,14 @@ def link_customer(request, order_pk):
         order.customer = customer
         order.save(update_fields=["customer"])
     return redirect("billing:order_bill", order_pk=order.pk)
+
+@role_required(User.Role.FRONT_DESK, User.Role.MANAGER)
+@require_POST
+def complete_prepaid_order(request, order_pk):
+    order = get_object_or_404(Order, pk=order_pk)
+    invoice = getattr(order, "invoice", None)
+
+    if invoice and invoice.is_paid and order.status not in (Order.Status.COMPLETED, Order.Status.CANCELLED):
+        order.complete_after_fulfillment()
+
+    return redirect("tables:reception_dashboard")

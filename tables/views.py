@@ -12,12 +12,24 @@ from django.contrib import messages
 from reservations.models import Reservation
 from django.utils import timezone
 from .forms import TableForm
+from django.db.models import Q
 
 # Create your views here.
 
 @role_required(User.Role.FRONT_DESK, User.Role.MANAGER)
 def reception_dashboard(request):
+    query = request.GET.get("q", "").strip()
     active_orders = Order.objects.filter(table__isnull=True).exclude(status__in=[Order.Status.COMPLETED, Order.Status.CANCELLED, Order.Status.DRAFT]).select_related("customer").order_by("-created_at")
+    if query:
+        active_orders = active_orders.filter(
+            Q(pk__iexact=query) |
+            Q(customer__name__icontains=query) |
+            Q(customer__phone__icontains=query) |
+            Q(contact_name__icontains=query) |
+            Q(contact_phone__icontains=query)
+        )
+
+    active_orders = active_orders[:10]
     pending_bills = Invoice.objects.filter(is_paid=False).select_related("order")
     all_tables = Table.objects.all().order_by("location", "table_number")
     tables_by_location = {}
@@ -32,6 +44,8 @@ def reception_dashboard(request):
         "tables": all_tables,
         "todays_reservations": todays_reservations,
         "tables_by_location": tables_by_location,
+        "query": query,
+
     }
     return render(request,"tables/reception_dashboard.html",context)
     

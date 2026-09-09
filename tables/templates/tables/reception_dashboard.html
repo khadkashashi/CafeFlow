@@ -40,9 +40,9 @@
                         {% else %}bg-secondary{% endif %}">
                         {{ table.get_status_display }}
                     </span>
-                     {% if table.id in todays_reservations %}
-                     <div class="badge bg-info text-dark mt-1">Reserved {{ todays_reservations|get_item:table.id }}</div>
-                     {% endif %}
+                    {% if table.id in todays_reservations %}
+                    <div class="badge bg-info text-dark mt-1">Reserved {{ todays_reservations|get_item:table.id }}</div>
+                    {% endif %}
                     {% if table.status == 'CLEANING' %}
                     <form method="post" action="{% url 'tables:mark_table_clean' table.pk %}" class="mt-2" onclick="event.stopPropagation();">
                         {% csrf_token %}
@@ -60,9 +60,23 @@
 </div>
 {% endfor %}
 
-<h5 class="mt-4">Online &amp; Pickup Orders — Ready for Billing</h5>
+<h5 class="mt-4">Online &amp; Pickup Orders - Ready for Billing</h5>
+<form method="get" class="d-flex gap-2 mb-3" style="max-width: 400px;">
+    <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search by order #, name, or phone">
+    <button class="btn btn-outline-secondary">Search</button>
+</form>
+
 <table class="table bg-white">
-    <thead><tr><th>Order</th><th>Source</th><th>Customer</th><th>Status</th><th>Total</th><th></th></tr></thead>
+    <thead>
+        <tr>
+            <th>Order</th>
+            <th>Source</th>
+            <th>Customer</th>
+            <th>Status</th>
+            <th>Total</th>
+            <th class="text-end">Actions</th>
+        </tr>
+    </thead>
     <tbody>
         {% for order in active_orders %}
         <tr>
@@ -71,14 +85,17 @@
             <td>{{ order.customer.name|default:"—" }} {% if order.customer.phone %}({{ order.customer.phone }}){% endif %}</td>
             <td>{{ order.get_status_display }}</td>
             <td>Rs.{{ order.grand_total }}</td>
-            <td><a href="{% url 'billing:order_bill' order.pk %}" class="btn btn-sm btn-outline-dark">View / Bill</a></td>
-            <td>
-    {% if order.invoice.is_paid %}
-    <a href="{% url 'billing:receipt' order.invoice.pk %}" class="btn btn-sm btn-outline-dark" target="_blank">Receipt</a>
-    {% else %}
-    <a href="{% url 'billing:order_bill' order.pk %}" class="btn btn-sm btn-outline-dark">View / Bill</a>
-    {% endif %}
-</td>
+            <td class="text-end">
+                <a href="{% url 'billing:order_bill' order.pk %}" class="btn btn-sm btn-outline-dark">View / Bill</a>
+                
+                {% if order.invoice.is_paid %}
+                <a href="{% url 'billing:receipt' order.invoice.pk %}" class="btn btn-sm btn-outline-dark" target="_blank">Receipt</a>
+                <form method="post" action="{% url 'billing:complete_prepaid_order' order.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-success">Mark Completed</button>
+                </form>
+                {% endif %}
+            </td>
         </tr>
         {% empty %}
         <tr><td colspan="6" class="text-muted">No online or pickup orders pending.</td></tr>
@@ -88,7 +105,14 @@
 
 <h5 class="mt-4">Pending Bills</h5>
 <table class="table table-sm bg-white">
-    <thead><tr><th>Invoice</th><th>Order</th><th>Total</th><th></th></tr></thead>
+    <thead>
+        <tr>
+            <th>Invoice</th>
+            <th>Order</th>
+            <th>Total</th>
+            <th></th>
+        </tr>
+    </thead>
     <tbody>
         {% for invoice in pending_bills %}
         <tr>

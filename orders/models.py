@@ -67,6 +67,20 @@ class Order(models.Model):
             table=table, status=Reservation.Status.CONFIRMED).update(status=Reservation.Status.COMPLETED)
 
         return order
+    def complete_after_fulfillment(self):
+        self.status = self.Status.COMPLETED
+        self.save(update_fields=["status"])
+
+        if self.table:
+            from tables.models import Table
+            self.table.status = Table.Status.CLEANING
+            self.table.save(update_fields=["status"])
+
+        if self.customer:
+            self.customer.add_loyalty_points(self.grand_total)
+
+        if hasattr(self, "reservation") and self.reservation:
+            self.reservation.complete()
         
 
     def send_to_kitchen(self):
@@ -100,3 +114,4 @@ class OrderItem(models.Model):
             self.price = self.food.price
         super().save(*args, **kwargs)
         self.order.recalculate_totals()
+

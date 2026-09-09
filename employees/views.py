@@ -49,9 +49,18 @@ def toggle_active(request, pk):
 
 @login_required
 def my_shift(request):
-    employee = Employee.objects.filter(user=request.user).first()
-    if not employee:
-        return redirect("landing:home")  # not a staff member, nothing to show
+    if request.user.role == request.user.Role.CUSTOMER:
+        return redirect("landing:home")
+
+    employee, _ = Employee.objects.get_or_create(
+        user=request.user,
+        defaults={
+            "position": request.user.get_role_display(),
+            "salary": 0,
+            "joining_date": timezone.now().date(),
+            "shift": Employee.Shift.MORNING,
+        },
+    )
 
     today_log = ShiftLog.objects.filter(employee=employee, date=timezone.now().date()).first()
     logs = ShiftLog.objects.filter(employee=employee).order_by("-date")[:10]
