@@ -1,8 +1,20 @@
 {% extends "base.html" %}
-{% block title %}Today's Attendance{% endblock %}
+{% block title %}Attendance{% endblock %}
 
 {% block content %}
-<h3>Attendance - {{ today }}</h3>
+<div class="d-flex gap-2 mb-3 flex-wrap align-items-center">
+    <a href="?range=today" class="btn btn-sm {% if filter_choice == 'today' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Today</a>
+    <a href="?range=yesterday" class="btn btn-sm {% if filter_choice == 'yesterday' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Yesterday</a>
+    <a href="?range=week" class="btn btn-sm {% if filter_choice == 'week' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Last 7 Days</a>
+    <a href="?range=all" class="btn btn-sm {% if filter_choice == 'all' %}btn-primary{% else %}btn-outline-secondary{% endif %}">All Time</a>
+    <form method="get" class="d-flex gap-2 align-items-center ms-2">
+        <input type="hidden" name="range" value="custom">
+        <input type="date" name="date" value="{{ custom_date }}" class="form-control form-control-sm" style="width:160px;">
+        <button class="btn btn-sm {% if filter_choice == 'custom' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Pick Date</button>
+    </form>
+</div>
+
+<h3>Attendance — {{ target_date }}</h3>
 
 <div class="row mt-4">
     <div class="col-md-4">
