@@ -1,8 +1,8 @@
 # CafeFlow 
 
-**CafeFlow** is a full-stack cafe management and online ordering system built with Django — covering everything from a waiter taking a dine-in order to a customer paying online with Khalti and tracking it in real time.
+**CafeFlow** is a full-stack cafe management and online ordering system built with Django - covering everything from a waiter taking a dine-in order to a customer paying online with Khalti and tracking it in real time.
 
-It was built from scratch as a learning project, milestone by milestone, with an emphasis on realistic business logic (not just CRUD): role-based staff permissions, financial data integrity, automatic inventory deduction, and a unified order pipeline that treats a walk-in table order and an online delivery order as the exact same underlying object.
+It was built from scratch as a learning project, milestone by milestone, with an emphasis on realistic business logic (not just CRUD): role-based staff permissions, financial data integrity, automatic inventory deduction, and a unified order pipeline that treats a walk-in table order and an online delivery order as the same underlying object.
 
 ---
 
@@ -24,7 +24,7 @@ CafeFlow runs the full loop of a real cafe:
 - **Front Desk** handles billing, discounts, payments (with change calculation), refunds, and daily cash closing
 - **Managers** get full oversight: reports, profit/loss, inventory, menu management, staff accounts, attendance, and shift tracking
 
-Every feature above is reachable through its own UI — there is no step in daily operations that requires opening Django admin.
+Every feature above is reachable through its own UI - no step in daily operations requires opening the Django admin.
 
 ---
 
@@ -126,13 +126,9 @@ For the chatbot, install and run [Ollama](https://ollama.com) locally with a mod
 
 Being upfront about what this project doesn't handle, rather than overselling it:
 
-- QR-code table ordering doesn't lock a table at scan time — a stale scan combined with a fast second customer could theoretically both reach checkout before the table's status is rechecked.
-- Split-bill and per-role discount limits (e.g. "waiters can discount up to X%") aren't implemented.
+- QR-code table ordering doesn't lock a table at scan time - a stale scan combined with a fast second customer could theoretically both reach checkout before the table's status is rechecked.
+- Split-bill and per-role discount limits (e.g., "waiters can discount up to X%") aren't implemented.
 - Profit/loss is calculated on a cash basis (money spent vs. earned this period), not full accrual accounting against ingredients actually consumed per sale.
-- No automated test suite yet — testing was done manually, end-to-end, through the actual UI.
+- No automated test suite yet - testing was done manually, end-to-end, through the actual UI.
 
 ---
-
-## A note on how this was built
-
-This project was built interactively, one feature at a time, with heavy emphasis on understanding *why* something works — not just pasting working code. Along the way it involved real debugging: circular imports, Django's `update_fields` gotcha, signal-timing bugs, duplicate-data integrity issues, and a genuinely subtle bug where `Payment.save()`'s side effect was silently completing online orders before they'd even reached the kitchen. Those fixes are as much a part of this project as the features themselves.
