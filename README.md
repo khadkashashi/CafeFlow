@@ -1,6 +1,6 @@
 # CafeFlow 
 
-**CafeFlow** is a full-stack cafe management and online ordering system built with Django - covering everything from a waiter taking a dine-in order to a customer paying online with Khalti and tracking it in real time.
+**CafeFlow** is a full-stack cafe management and online ordering system built with Django -  covering everything from a waiter taking a dine-in order to a customer paying online with Khalti and tracking it in real time.
 
 It was built from scratch as a learning project, milestone by milestone, with an emphasis on realistic business logic (not just CRUD): role-based staff permissions, financial data integrity, automatic inventory deduction, and a unified order pipeline that treats a walk-in table order and an online delivery order as the same underlying object.
 
@@ -24,7 +24,7 @@ CafeFlow runs the full loop of a real cafe:
 - **Front Desk** handles billing, discounts, payments (with change calculation), refunds, and daily cash closing
 - **Managers** get full oversight: reports, profit/loss, inventory, menu management, staff accounts, attendance, and shift tracking
 
-Every feature above is reachable through its own UI - no step in daily operations requires opening the Django admin.
+Every feature above is reachable through its own UI - no step in daily operations requires opening Django admin.
 
 ---
 
@@ -42,7 +42,7 @@ Every feature above is reachable through its own UI - no step in daily operation
 | **Reviews** | Order-linked and standalone reviews, shown on the public homepage |
 | **Reservations** | Public reservation form with optional food pre-order, staff confirmation with table assignment, same-day availability checks |
 | **Staff & HR** | Employee accounts created by managers, shift clock-in/out, attendance dashboard (present/completed/absent), expense tracking |
-| **Access control** | Role-based permissions enforced at both the view level and the navigation UI — a role never sees a link it can't use |
+| **Access control** | Role-based permissions enforced at both the view level and the navigation UI - a role never sees a link it can't use |
 | **Chatbot** | A locally-hosted (Ollama) assistant grounded in the real menu/hours data, answering customer questions on the public site |
 
 ---
@@ -98,17 +98,22 @@ cafeflow/
 
 ## Setup
 
+This project uses [`uv`](https://docs.astral.sh/uv/) for dependency and virtual environment management.
+
 ```bash
 git clone <this-repo>
 cd cafeflow
-python -m venv .venv
-.venv\Scripts\activate        # Windows
-pip install -r requirements.txt
 
-python manage.py migrate
-python manage.py createsuperuser
-python manage.py runserver
+uv venv
+.venv\Scripts\Activate.ps1    # Windows PowerShell
+uv sync                        # installs everything from pyproject.toml / uv.lock
+
+uv run manage.py migrate
+uv run manage.py createsuperuser
+uv run manage.py runserver
 ```
+
+If you're adding a new dependency later, use `uv pip install <package>` (or `uv add <package>` to also update `pyproject.toml`) rather than plain `pip install`, so the lockfile stays in sync.
 
 **Environment variables needed:**
 
@@ -118,7 +123,7 @@ KHALTI_SECRET_KEY=your_khalti_sandbox_key
 
 Set `TIME_ZONE` in `config/settings.py` to your local timezone (defaults to `Asia/Kathmandu`).
 
-For the chatbot, install and run [Ollama](https://ollama.com) locally with a model pulled (e.g. `ollama pull gemma2:2b`).
+For the chatbot, install and run [Ollama](https://ollama.com) locally with a model pulled (e.g., `ollama pull gemma2:2b`).
 
 ---
 
@@ -126,9 +131,13 @@ For the chatbot, install and run [Ollama](https://ollama.com) locally with a mod
 
 Being upfront about what this project doesn't handle, rather than overselling it:
 
-- QR-code table ordering doesn't lock a table at scan time - a stale scan combined with a fast second customer could theoretically both reach checkout before the table's status is rechecked.
-- Split-bill and per-role discount limits (e.g., "waiters can discount up to X%") aren't implemented.
+- QR-code table ordering doesn't lock a table at scan time — a stale scan combined with a fast second customer could theoretically both reach checkout before the table's status is rechecked.
+- Split-bill and per-role discount limits (e.g. "waiters can discount up to X%") aren't implemented.
 - Profit/loss is calculated on a cash basis (money spent vs. earned this period), not full accrual accounting against ingredients actually consumed per sale.
 - No automated test suite yet - testing was done manually, end-to-end, through the actual UI.
 
 ---
+
+## A note on how this was built
+
+This project was built interactively, one feature at a time, with heavy emphasis on understanding *why* something works. Along the way, it involved real debugging: circular imports, Django's `update_fields` gotcha, signal-timing bugs, duplicate-data integrity issues, and a genuinely subtle bug where `Payment.save()`'s side effect was silently completing online orders before they'd even reached the kitchen. Those fixes are as much a part of this project as the features themselves.
