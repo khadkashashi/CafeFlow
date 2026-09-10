@@ -7,8 +7,7 @@ from .models import Employee,ShiftLog
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
-from datetime import timedelta
-
+from datetime import date as date_cls, timedelta
 
 @role_required(User.Role.MANAGER)
 def employee_list(request):
@@ -137,16 +136,51 @@ def all_shifts(request):
 
 @role_required(User.Role.MANAGER)
 def attendance_today(request):
+    filter_choice = request.GET.get("range", "today")
     today = timezone.now().date()
+
+    if filter_choice in ("week", "all"):
+        employees = Employee.objects.filter(is_active=True).select_related("user")
+        logs = ShiftLog.objects.all()
+        if filter_choice == "week":
+            logs = logs.filter(date__gte=today - timedelta(days=7))
+
+        summary = []
+        for emp in employees:
+            emp_logs = logs.filter(employee=emp)
+            days_worked = emp_logs.filter(clock_in__isnull=False).count()
+            total_hours = sum((l.hours_worked or 0) for l in emp_logs)
+            summary.append({"employee": emp, "days_worked": days_worked, "total_hours": round(total_hours, 2)})
+
+        return render(request, "employees/attendance_summary.html", {"summary": summary, "filter_choice": filter_choice})
+
+    # single-day view (today / yesterday / custom)
+    if filter_choice == "yesterday":
+        target_date = today - timedelta(days=1)
+    elif filter_choice == "custom":
+        custom_date = request.GET.get("date")
+        target_date = date_cls.fromisoformat(custom_date) if custom_date else today
+    else:
+        target_date = today
+
     employees = Employee.objects.filter(is_active=True).select_related("user")
-    todays_logs = {log.employee_id: log for log in ShiftLog.objects.filter(date=today)}
+    logs_for_date = {log.employee_id: log for log in ShiftLog.objects.filter(date=target_date)}
     present, completed, absent = [], [], []
     for emp in employees:
-        log = todays_logs.get(emp.id)
+        log = logs_for_date.get(emp.id)
         if not log or not log.clock_in:
             absent.append(emp)
         elif log.clock_in and not log.clock_out:
             present.append((emp, log))
         else:
             completed.append((emp, log))
-    return render(request, "employees/attendance_today.html", {"present": present, "completed": completed, "absent": absent, "today": today})
+    context={
+        "present": present, 
+        "completed": completed,
+        "absent": absent,
+        "target_date": target_date, 
+        "filter_choice": filter_choice,
+        "custom_date": request.GET.get("date", ""),
+    }
+
+    return render(request, "employees/attendance_today.html", context)
